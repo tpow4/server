@@ -1,0 +1,9 @@
+---
+users:
+  user1:
+    displayname: "Tom Powers"
+    password: "{{ authelia_user_password }}"
+    email: "{{ email }}"
+    groups:
+      - admins
+      - dev

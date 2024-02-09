@@ -1,0 +1,37 @@
+- name: Verify that authelia directories exists
+  file:
+    path: "{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    state: directory
+  loop:
+    - "{{ authelia_directory }}"
+    - "{{ authelia_directory }}/config"
+
+- name: Copy authelia docker-compose.yml
+  template:
+    src: ./roles/containers/authelia/compose.yml
+    dest: "{{ authelia_directory }}/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Copy authelia configuration.yml
+  template:
+    src: ./roles/containers/authelia/configuration.yml
+    dest: "{{ authelia_directory }}/config/configuration.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Copy authelia users_database.yml
+  template:
+    src: ./roles/containers/authelia/users_database.yml
+    dest: "{{ authelia_directory }}/config/users_database.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Docker-compose up authelia container
+  community.docker.docker_compose:
+    project_src: "{{ authelia_directory }}"

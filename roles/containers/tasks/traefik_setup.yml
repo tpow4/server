@@ -1,0 +1,50 @@
+---
+- name: Create a network
+  docker_network:
+    name: proxy
+
+- name: Verify that traefik directories exists
+  file:
+    path: "{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    state: directory
+  loop:
+    - "{{ traefik_directory }}"
+    - "{{ traefik_directory }}/data"
+
+- name: Copy traefik docker-compose.yml
+  template:
+    src: ./roles/containers/traefik/compose.yml
+    dest: "{{ traefik_directory }}/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Ensures acme.json file exists
+  file:
+    path: "{{ traefik_directory }}/data/acme.json"
+    state: touch
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0600"
+
+- name: Adding traefik.yml file
+  template:
+    src: ./roles/containers/traefik/traefik.yml
+    dest: "{{ traefik_directory }}/data/traefik.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Adding traefik config file
+  template:
+    src: ./roles/containers/traefik/config.yml
+    dest: "{{ traefik_directory }}/data/config.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Docker-compose up traefik container
+  community.docker.docker_compose:
+    project_src: "{{ traefik_directory }}"

@@ -1,0 +1,32 @@
+- name: Verify that paperless directories exists
+  file:
+    path: "{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    state: directory
+  loop:
+    - "{{ paperless_directory }}"
+    - "{{ paperless_directory }}/export"
+    - "{{ paperless_directory }}/consume"
+
+- name: Copy paperless compose.yml
+  template:
+    src: ./roles/containers/paperless/compose.yml
+    dest: "{{ paperless_directory }}/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Copy paperless compose.env
+  template:
+    src: ./roles/containers/paperless/compose.env
+    dest: "{{ paperless_directory }}/compose.env"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Docker-compose up paperless container
+  community.docker.docker_compose:
+    state: present
+    project_src: "{{ paperless_directory }}"
+    recreate: always

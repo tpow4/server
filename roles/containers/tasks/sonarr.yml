@@ -1,0 +1,22 @@
+- name: Verify that sonarr directories exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    state: directory
+  loop:
+    - "{{ sonarr_directory }}"
+    - "{{ sonarr_directory }}/config"
+    - "{{ sonarr_directory }}/data"
+
+- name: Copy sonarr docker-compose.yml
+  template:
+    src: ./roles/containers/sonarr/compose.yml
+    dest: "{{ sonarr_directory }}/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Docker-compose up sonarr container
+  community.docker.docker_compose:
+    project_src: "{{ sonarr_directory }}"

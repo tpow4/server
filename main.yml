@@ -1,0 +1,10 @@
+- name: Setup Home Server Applications
+  hosts: all
+  become: true
+
+  roles:
+    - system
+    - containers
+
+  handlers:
+  - import_tasks: handlers/main.yml

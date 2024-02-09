@@ -1,0 +1,25 @@
+- name: Verify that jellyfin directories exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    state: directory
+  loop:
+    - "{{ jellyfin_directory }}"
+    - "{{ jellyfin_directory }}/config"
+    - "{{ jellyfin_directory }}/cache"
+    - "{{ jellyfin_directory }}/media"
+    - "{{ jellyfin_directory }}/media/movies"
+    - "{{ jellyfin_directory }}/media2"
+
+- name: Copy jellyfin docker-compose.yml
+  template:
+    src: ./roles/containers/jellyfin/compose.yml
+    dest: "{{ jellyfin_directory }}/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Docker-compose up jellyfin container
+  community.docker.docker_compose:
+    project_src: "{{ jellyfin_directory }}"

@@ -1,0 +1,39 @@
+- name: Download Python
+  apt:
+    name: python3
+    state: present
+
+- name: Download Pip
+  apt:
+    name: python3-pip
+    state: present
+
+- name: Download Docker
+  apt:
+    name: docker.io
+    state: present
+
+- name: Install Docker Compose
+  pip:
+    name: docker-compose
+    state: present
+
+- name: Verify that docker directories exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    state: directory
+  loop:
+    - "{{ docker_directory }}"
+    - "{{ docker_compose_directory }}"
+    - "{{ docker_compose_directory }}/services"
+    - "{{ docker_compose_directory }}/traefik"
+
+- name: Copy services docker-compose.yml
+  ansible.builtin.copy:
+    src: ./roles/containers/templates/compose.yml
+    dest: "{{ docker_compose_directory }}/services/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes

@@ -1,0 +1,52 @@
+username: tompo
+domain: hotdamndog.com
+local_domain: "local.{{ domain }}"
+timezone: America/Chicago
+email: "{{ vault_email }}"
+ssh_public_key: "{{ vault_ssh_public_key }}"
+
+packages:
+  - vim
+  - neofetch 
+  - htop
+
+# Docker settings
+docker_directory: /opt/docker/data
+docker_compose_directory: /opt/docker/compose
+
+# Traefik settings
+traefik_directory: /home/tompo/traefik
+
+# Authelia settings
+authelia_directory: /home/tompo/authelia
+authelia_jwt_secret: "{{ vault_authelia_jwt_secret }}"
+authelia_sqlite_encryption_key: "{{ vault_authelia_sqlite_encryption_key }}"
+authelia_user_password: "{{ vault_authelia_user_password }}"
+authelia_session_secret: "{{ vault_authelia_session_secret }}"
+
+# Cloudflare settings
+cloudflare_email: "{{ vault_cloudflare_email }}"
+cloudflare_api_key: "{{ vault_cloudflare_api_key }}"
+
+# Openbooks settings
+openbooks_directory: /home/tompo/openbooks
+
+# Jellyfin settings
+jellyfin_directory: /home/tompo/jellyfin
+
+# Nextcloud settings
+nextcloud_directory: /home/tompo/nextcloud
+
+# Paperless settings
+paperless_directory: /home/tompo/paperless
+paperless_admin_user: "{{ username }}"
+paperless_admin_password: "{{ vault_paperless_admin_password }}"
+paperless_secret_key: "{{ vault_paperless_secret_key }}"
+paperless_db_password: "{{ vault_paperless_db_password }}"
+paperless_db_root_password: "{{ vault_paperless_db_root_password }}"
+
+# Radarr settings
+radarr_directory: /home/tompo/radarr
+
+# Sonarr settings
+sonarr_directory: /home/tompo/sonarr

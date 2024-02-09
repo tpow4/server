@@ -1,0 +1,27 @@
+version: '3.3'
+
+networks:
+  proxy:
+    driver: bridge
+    external: true
+
+services:
+  authelia:
+    image: authelia/authelia
+    container_name: authelia
+    volumes:
+      - ./config:/config
+    networks:
+      - proxy
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.authelia.rule=Host(`auth.{{ local_domain }}`)'
+      - 'traefik.http.routers.authelia.entrypoints=https'
+    expose:
+      - 9091
+    restart: unless-stopped
+    healthcheck:
+      ## In production the healthcheck section should be commented.
+      disable: true
+    environment:
+      - "TZ={{ timezone }}"

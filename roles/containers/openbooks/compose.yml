@@ -1,0 +1,26 @@
+version: "3.3"
+
+networks:
+  proxy:
+    driver: bridge  
+    external: true
+
+services:  
+
+  openbooks:
+    container_name: openbooks
+    image: evanbuss/openbooks:latest
+    networks:
+      - proxy
+    ports:
+      - "8080:80"
+    environment:
+      - BASE_PATH=/openbooks/
+    volumes:
+      - "~/Downoads/openbooks:/books"
+    command: --persist --name diligent-rhino -b -s irc.irchighway.net:9999
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.openbooks.entryPoints=https"
+      - "traefik.http.routers.openbooks.rule=Host(`books.{{ local_domain }}`)"
+    restart: unless-stopped

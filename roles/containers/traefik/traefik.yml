@@ -1,0 +1,58 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+log:
+  level: DEBUG #todo change for production
+
+api:
+  dashboard: true
+  insecure: true #TODO: CHANGE FOR PRODUCTION
+  debug: true
+
+entryPoints:
+  http:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: https
+          scheme: https
+  https:
+    address: ":443"
+    http:
+      tls:
+        certResolver: cloudflare
+        domains:
+          - main: "{{ local_domain }}"
+            sans:
+              - "*.{{ local_domain }}"
+      middlewares:
+        - authelia@file
+        - securityHeaders@file
+
+serversTransport:
+  insecureSkipVerify: true
+
+providers:
+  providersThrottleDuration: "2s"
+
+  file:
+    filename: /config.yml #todo change path
+    watch: true
+  docker:
+    watch: true
+    network: proxy
+    exposedByDefault: false
+
+certificatesResolvers:
+ cloudflare:
+   acme:
+     email: "{{ cloudflare_email }}"
+     storage: acme.json #todo change path
+     dnsChallenge:
+       provider: cloudflare
+       disablePropagationCheck: true
+       resolvers:
+         - "1.1.1.1:53"
+         - "1.0.0.1:53"

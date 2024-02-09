@@ -1,0 +1,3 @@
+.vault_pass
+servers
+group_vars/all/secrets.yml

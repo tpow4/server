@@ -1,0 +1,27 @@
+version: "3.7"
+
+networks:
+  proxy:
+    external: true
+
+services:
+  radarr:
+    container_name: radarr
+    image: ghcr.io/hotio/radarr
+    ports:
+      - "7878:7878"
+    networks:
+      - proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - "TZ= {{ timezone }}"
+    volumes:
+      - ./config:/config
+      - ./data:/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr.entryPoints=https"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.{{ local_domain }}`)"
+    restart: unless-stopped
