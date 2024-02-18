@@ -1,0 +1,95 @@
+version: '3.5'
+
+networks:
+  proxy:
+    external: true
+
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    network_mode: "container:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ={{ timezone }}
+      - WEBUI_PORT=8090
+    volumes:
+      - "{{ docker_appdata_directory }}/qbittorrent:/config"
+      - "{{ data_directory }}/torrents:/data/torrents"
+    restart: unless-stopped
+
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    network_mode: "container:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - "TZ={{ timezone }}"
+    volumes:
+      - "{{ docker_appdata_directory }}/sabnzbd:/config"
+      - "{{ data_directory }}/usenet:/data/usenet"
+    restart: unless-stopped
+
+  prowlarr:
+    container_name: prowlarr
+    image: ghcr.io/hotio/prowlarr
+    ports:
+      - "9696:9696"
+    networks:
+      - proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - "TZ={{ timezone }}"
+    volumes:
+      - "{{ docker_appdata_directory }}/prowlarr:/config"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prowlarr.entryPoints=https"
+      - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.{{ local_domain }}`)"
+    restart: unless-stopped
+
+  radarr:
+    container_name: radarr
+    image: ghcr.io/hotio/radarr
+    ports:
+      - "7878:7878"
+    networks:
+      - proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - "TZ={{ timezone }}"
+    volumes:
+      - "{{ docker_appdata_directory }}/radarr:/config"
+      - "{{ data_directory }}:/data"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr.entryPoints=https"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.{{ local_domain }}`)"
+    restart: unless-stopped
+
+  sonarr:
+    container_name: sonarr
+    image: ghcr.io/hotio/sonarr
+    ports:
+      - "8989:8989"
+    networks:
+      - proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - UMASK=002
+      - "TZ={{ timezone }}"
+    volumes:
+      - "{{ docker_appdata_directory }}/sonarr:/config"
+      - "{{ data_directory }}:/data"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.entryPoints=https"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.{{ local_domain }}`)"
+    restart: unless-stopped

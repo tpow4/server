@@ -1,0 +1,42 @@
+version: '3.5'
+
+networks:
+  proxy:
+    external: true
+
+services:
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    restart: always
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    volumes:
+      - ./gluetun:/gluetun
+    networks:
+      - proxy
+    ports:
+      - "8081:8080" # sabnzbd web UI 
+      - "8090:8090" # qbittorrent web UI
+
+    environment:
+      TZ: "{{ timezone }}"
+      VPN_SERVICE_PROVIDER: "{{ gluetun_vpn_provider }}"
+      VPN_TYPE: wireguard
+      WIREGUARD_PRIVATE_KEY: "{{ gluetun_vpn_private_key }}"
+      WIREGUARD_ADDRESSES: "{{ gluetun_vpn_iprange }}"
+      SERVER_CITIES: "{{gluetun_vpn_location}}"
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.gluetun-qbittorrent-rtr.entrypoints=https"
+      - "traefik.http.routers.gluetun-qbittorrent-rtr.rule=Host(`qbit.{{ local_domain }}`)" # qbittorrent
+      - "traefik.http.routers.gluetun-sabnzbd-rtr.entrypoints=https"
+      - "traefik.http.routers.gluetun-sabnzbd-rtr.rule=Host(`sabnzbd.{{ local_domain }}`)" # Sabnzbd
+      ## HTTP Services
+      - "traefik.http.routers.gluetun-qbittorrent-rtr.service=gluetun-tranmission-svc" # qbittorrent
+      - "traefik.http.routers.gluetun-sabnzbd-rtr.service=gluetun-sabnzbd-svc" # Sabnzbd
+      - "traefik.http.services.gluetun-tranmission-svc.loadbalancer.server.port=8090" # qbittorrent
+      - "traefik.http.services.gluetun-sabnzbd-svc.loadbalancer.server.port=8080" # Sabnzbd
