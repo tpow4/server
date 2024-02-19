@@ -11,10 +11,9 @@ services:
     networks:
       - proxy
     volumes:
-      - ./config:/config
-      - ./cache:/cache
-      - ./media:/media
-      - ./media2:/media2:ro
+      - "{{ docker_appdata_directory }}/jellyfin/config:/config"
+      - "{{ docker_appdata_directory }}/jellyfin/cache:/cache"
+      - "{{ data_directory }}/media:/media"
     restart: 'unless-stopped'
     environment:
       - JELLYFIN_PublishedServerUrl=http://jellyfin.{{ local_domain }}

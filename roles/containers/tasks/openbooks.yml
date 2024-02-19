@@ -1,18 +1,21 @@
 - name: Verify that openbooks directory exists
   file:
-    path: "{{ openbooks_directory }}"
+    path: "{{ item }}"
     owner: "{{ username }}"
     group: "{{ username }}"
     state: directory
+  loop:
+   - "{{ docker_compose_directory }}/openbooks"
+   - "{{ data_directory}}/media/books"
 
 - name: Copy openbooks docker-compose.yml
   template:
     src: ./roles/containers/openbooks/compose.yml
-    dest: "{{ openbooks_directory }}/compose.yml"
+    dest: "{{ docker_compose_directory }}/openbooks/compose.yml"
     owner: "{{ username }}"
     group: "{{ username }}"
     force: yes
 
 - name: Docker-compose up openbooks container
   community.docker.docker_compose:
-    project_src: "{{ openbooks_directory }}"
+    project_src: "{{ docker_compose_directory }}/openbooks/"

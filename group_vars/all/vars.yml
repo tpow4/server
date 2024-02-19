@@ -14,6 +14,7 @@ packages:
 #todo: add docker directory: /opt/docker
 docker_appdata_directory: /opt/docker/appdata
 docker_compose_directory: /opt/docker/compose
+data_directory: /data
 
 # Traefik settings
 traefik_directory: /home/tompo/traefik
@@ -32,9 +33,6 @@ cloudflare_api_key: "{{ vault_cloudflare_api_key }}"
 # Openbooks settings
 openbooks_directory: /home/tompo/openbooks
 
-# Jellyfin settings
-jellyfin_directory: /home/tompo/jellyfin
-
 # Nextcloud settings
 nextcloud_directory: /home/tompo/nextcloud
 
@@ -46,11 +44,6 @@ paperless_secret_key: "{{ vault_paperless_secret_key }}"
 paperless_db_password: "{{ vault_paperless_db_password }}"
 paperless_db_root_password: "{{ vault_paperless_db_root_password }}"
 
-# Radarr settings
-radarr_directory: /home/tompo/radarr
-
-# Sonarr settings
-sonarr_directory: /home/tompo/sonarr
 
 # Gluetun settings
 gluetun_directory: /home/tompo/gluetun
@@ -58,8 +51,3 @@ gluetun_vpn_provider: "{{ vault_gluetun_vpn_provider }}"
 gluetun_vpn_iprange : "{{ vault_gluetun_vpn_iprange }}"
 gluetun_vpn_private_key: "{{ vault_gluetun_vpn_private_key }}"
 gluetun_vpn_location: "{{ vault_gluetun_vpn_location }}"
-
-# qbittorrent settings
-qbittorrent_directory: /home/tompo/qbittorrent
-
-data_directory: /data
