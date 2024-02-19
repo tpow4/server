@@ -32,6 +32,15 @@ services:
       - "{{ data_directory }}/usenet:/data/usenet"
     restart: unless-stopped
 
+  openbooks:
+    container_name: openbooks
+    image: evanbuss/openbooks:latest
+    network_mode: "container:gluetun"
+    volumes:
+      - "{{ data_directory }}/media/books:/books"
+    command: --persist --name diligent-rhino -s irc.irchighway.net:9999 --tls
+    restart: unless-stopped
+
   prowlarr:
     container_name: prowlarr
     image: ghcr.io/hotio/prowlarr
