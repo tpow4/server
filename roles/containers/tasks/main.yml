@@ -6,3 +6,4 @@
 - include_tasks: paperless.yml
 - include_tasks: gluetun.yml
 - include_tasks: downloads.yml
+- include_tasks: nextcloud.yml

@@ -54,6 +54,8 @@ access_control:
       policy: bypass
     - domain: "sabnzbd.{{ local_domain }}"
       policy: bypass
+    - domain: "homeassistant.{{ local_domain }}"
+      policy: bypass
 
 session:
   name: authelia_session

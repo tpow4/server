@@ -30,9 +30,6 @@ authelia_session_secret: "{{ vault_authelia_session_secret }}"
 cloudflare_email: "{{ vault_cloudflare_email }}"
 cloudflare_api_key: "{{ vault_cloudflare_api_key }}"
 
-# Openbooks settings
-openbooks_directory: /home/tompo/openbooks
-
 # Nextcloud settings
 nextcloud_directory: /home/tompo/nextcloud
 
