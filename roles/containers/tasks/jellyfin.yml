@@ -5,21 +5,22 @@
     group: "{{ username }}"
     state: directory
   loop:
-    - "{{ jellyfin_directory }}"
-    - "{{ jellyfin_directory }}/config"
-    - "{{ jellyfin_directory }}/cache"
-    - "{{ jellyfin_directory }}/media"
-    - "{{ jellyfin_directory }}/media/movies"
-    - "{{ jellyfin_directory }}/media2"
+    - "{{ docker_compose_directory }}/jellyfin"
+    - "{{ docker_appdata_directory }}/jellyfin"
+    - "{{ docker_appdata_directory }}/jellyfin/config"
+    - "{{ docker_appdata_directory }}/jellyfin/cache"
+    - "{{ data_directory }}/media"
+    - "{{ data_directory }}/media/movies"
+    - "{{ data_directory }}/media/tv"
 
 - name: Copy jellyfin docker-compose.yml
   template:
     src: ./roles/containers/jellyfin/compose.yml
-    dest: "{{ jellyfin_directory }}/compose.yml"
+    dest: "{{ docker_compose_directory }}/jellyfin/compose.yml"
     owner: "{{ username }}"
     group: "{{ username }}"
     force: yes
 
 - name: Docker-compose up jellyfin container
   community.docker.docker_compose:
-    project_src: "{{ jellyfin_directory }}"
+    project_src: "{{ docker_compose_directory }}/jellyfin/"

@@ -29,4 +29,3 @@
   community.docker.docker_compose:
     state: present
     project_src: "{{ paperless_directory }}"
-    recreate: always

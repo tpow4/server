@@ -2,8 +2,8 @@
 - include_tasks: docker.yml
 - include_tasks: authelia.yml
 - include_tasks: traefik_setup.yml
-- include_tasks: openbooks.yml
 - include_tasks: jellyfin.yml
-- include_tasks: radarr.yml
-- include_tasks: sonarr.yml
 - include_tasks: paperless.yml
+- include_tasks: gluetun.yml
+- include_tasks: downloads.yml
+- include_tasks: nextcloud.yml

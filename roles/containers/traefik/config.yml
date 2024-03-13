@@ -12,6 +12,12 @@ http:
         - https-redirectscheme
       tls: {}
       service: pihole
+    nextcloud:
+      rule: "Host(`nextcloud.{{ local_domain }}`)"
+      entryPoints:
+        - "https"
+      service: nextcloud
+      tls: {}
 
   services:
     pihole:
@@ -19,6 +25,10 @@ http:
         servers:
           - url: "http://192.168.0.125:80"
         passHostHeader: true
+    nextcloud:
+      loadBalancer:
+        servers:
+          - url: "http://localhost:11000"
     
   middlewares:
     authelia:

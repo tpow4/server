@@ -1,0 +1,28 @@
+- name: Verify that downloads directories exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    state: directory
+  loop:
+    - "{{ data_directory }}"
+    - "{{ data_directory }}/torrents"
+    - "{{ data_directory }}/usenet"
+    - "{{ data_directory}}/media/books"
+    - "{{ docker_compose_directory }}/downloads"
+    - "{{ docker_appdata_directory }}/sabnzbd"
+    - "{{ docker_appdata_directory }}/prowlarr"
+    - "{{ docker_appdata_directory }}/sonarr"
+    - "{{ docker_appdata_directory }}/radarr"
+
+- name: Copy downloads docker-compose.yml
+  template:
+    src: ./roles/containers/downloads/compose.yml
+    dest: "{{ docker_compose_directory }}/downloads/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Docker-compose up downloads containers
+  community.docker.docker_compose:
+    project_src: "{{ docker_compose_directory }}/downloads/"

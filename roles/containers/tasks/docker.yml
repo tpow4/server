@@ -25,15 +25,5 @@
     group: "{{ username }}"
     state: directory
   loop:
-    - "{{ docker_directory }}"
+    - "{{ docker_appdata_directory }}"
     - "{{ docker_compose_directory }}"
-    - "{{ docker_compose_directory }}/services"
-    - "{{ docker_compose_directory }}/traefik"
-
-- name: Copy services docker-compose.yml
-  ansible.builtin.copy:
-    src: ./roles/containers/templates/compose.yml
-    dest: "{{ docker_compose_directory }}/services/compose.yml"
-    owner: "{{ username }}"
-    group: "{{ username }}"
-    force: yes

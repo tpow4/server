@@ -43,12 +43,19 @@ access_control:
     - domain: "nextcloud.{{ local_domain }}"
       policy: bypass
     - domain: "radarr.{{ local_domain }}"
-      policy: one_factor
+      policy: bypass
     - domain: "sonarr.{{ local_domain }}"
-      policy: one_factor
+      policy: bypass
     - domain: "paperless.{{ local_domain }}"
       policy: one_factor
-
+    - domain: "qbit.{{ local_domain }}"
+      policy: bypass
+    - domain: "prowlarr.{{ local_domain }}"
+      policy: bypass
+    - domain: "sabnzbd.{{ local_domain }}"
+      policy: bypass
+    - domain: "homeassistant.{{ local_domain }}"
+      policy: bypass
 
 session:
   name: authelia_session
