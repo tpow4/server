@@ -15,8 +15,9 @@
 
 - name: Install Docker Compose
   pip:
-    name: docker-compose
-    state: present
+     name: 
+      - "docker==6.1.3"
+      - "docker-compose"
 
 - name: Verify that docker directories exists
   ansible.builtin.file:

@@ -3,7 +3,7 @@ global:
   sendAnonymousUsage: false
 
 log:
-  level: DEBUG #todo change for production
+  level: DEBUG #TODO: change for production
 
 api:
   dashboard: true
@@ -35,8 +35,6 @@ serversTransport:
   insecureSkipVerify: true
 
 providers:
-  providersThrottleDuration: "2s"
-
   file:
     filename: /config.yml #todo change path
     watch: true
@@ -49,10 +47,11 @@ certificatesResolvers:
  cloudflare:
    acme:
      email: "{{ cloudflare_email }}"
-     storage: acme.json #todo change path
+     storage: acme.json
+     caServer: https://acme-v02.api.letsencrypt.org/directory #prod
+     #staging environment https://acme-staging-v02.api.letsencrypt.org/directory
      dnsChallenge:
        provider: cloudflare
-       disablePropagationCheck: true
        resolvers:
          - "1.1.1.1:53"
          - "1.0.0.1:53"

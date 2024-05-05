@@ -1,8 +1,3 @@
----
-- name: Create a network
-  docker_network:
-    name: proxy
-
 - name: Verify that traefik directories exists
   file:
     path: "{{ item }}"
