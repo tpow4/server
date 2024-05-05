@@ -18,4 +18,3 @@
 - name: Docker-compose up nextcloud container
   community.docker.docker_compose:
     project_src: "{{ docker_compose_directory }}/nextcloud"
-    recreate: "always"

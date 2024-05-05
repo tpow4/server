@@ -32,6 +32,10 @@
     group: "{{ username }}"
     force: yes
 
+- name: Create a network
+  docker_network:
+    name: proxy
+
 - name: Docker-compose up authelia container
   community.docker.docker_compose:
     project_src: "{{ authelia_directory }}"
