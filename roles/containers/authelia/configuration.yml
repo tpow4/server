@@ -30,7 +30,7 @@ authentication_backend:
 access_control:
   default_policy: deny
   rules:
-    - domain: "pihole.{{ local_domain }}"
+    - domain: "pihole.{{ domain }}"
       policy: bypass
     - domain: "auth.{{ local_domain }}"
       policy: bypass
@@ -55,6 +55,8 @@ access_control:
     - domain: "sabnzbd.{{ local_domain }}"
       policy: bypass
     - domain: "homeassistant.{{ local_domain }}"
+      policy: bypass
+    - domain: "sonarqube.{{ local_domain }}"
       policy: bypass
 
 session:

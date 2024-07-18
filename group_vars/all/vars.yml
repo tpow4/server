@@ -48,3 +48,6 @@ gluetun_vpn_provider: "{{ vault_gluetun_vpn_provider }}"
 gluetun_vpn_iprange : "{{ vault_gluetun_vpn_iprange }}"
 gluetun_vpn_private_key: "{{ vault_gluetun_vpn_private_key }}"
 gluetun_vpn_location: "{{ vault_gluetun_vpn_location }}"
+
+# Home Assistant settings
+home_assistant_directory: /home/tompo/home_assistant

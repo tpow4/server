@@ -1,0 +1,20 @@
+- name: Verify that sonarqube directories exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    state: directory
+  loop:
+    - "{{ docker_compose_directory }}/sonarqube"
+
+- name: Copy sonarqube docker-compose.yml
+  template:
+    src: ./roles/containers/sonarqube/compose.yml
+    dest: "{{ docker_compose_directory }}/sonarqube/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Docker-compose up sonarqube container
+  community.docker.docker_compose:
+    project_src: "{{ docker_compose_directory }}/sonarqube/"

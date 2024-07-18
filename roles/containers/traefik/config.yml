@@ -18,17 +18,30 @@ http:
         - "https"
       service: nextcloud
       tls: {}
+    proxmox:
+      rule: "Host(`prox.{{ domain }}`)"
+      middlewares:
+        - https-redirectscheme
+      entryPoints:
+        - "https"
+      service: proxmox
+      tls: {}
 
   services:
     pihole:
       loadBalancer:
         servers:
           - url: "http://192.168.0.125:80"
-        passHostHeader: true
+        # passHostHeader: true
     nextcloud:
       loadBalancer:
         servers:
           - url: "http://localhost:11000"
+    proxmox:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.0.247:8006"
+        # passHostHeader: true
 
   middlewares:
     authelia:
