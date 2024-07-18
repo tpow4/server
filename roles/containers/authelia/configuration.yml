@@ -32,6 +32,8 @@ access_control:
   rules:
     - domain: "pihole.{{ domain }}"
       policy: bypass
+    - domain: "prox.{{ domain }}"
+      policy: bypass
     - domain: "auth.{{ local_domain }}"
       policy: bypass
     - domain: "books.{{ local_domain }}"
