@@ -13,7 +13,7 @@ services:
     volumes:
       - "{{ docker_appdata_directory }}/jellyfin/config:/config"
       - "{{ docker_appdata_directory }}/jellyfin/cache:/cache"
-      - "{{ data_directory }}/media:/media"
+      - "media_volume:/media"
     restart: 'unless-stopped'
     environment:
       - JELLYFIN_PublishedServerUrl=http://jellyfin.{{ local_domain }}
@@ -21,3 +21,11 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.{{ local_domain }}`)"
       - "traefik.http.routers.jellyfin.entrypoints=https"
+
+volumes:
+  media_volume:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
+      device: ":/mnt/truenas/nas/data/media"

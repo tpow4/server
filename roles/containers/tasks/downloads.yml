@@ -5,10 +5,6 @@
     group: "{{ username }}"
     state: directory
   loop:
-    - "{{ data_directory }}"
-    - "{{ data_directory }}/torrents"
-    - "{{ data_directory }}/usenet"
-    - "{{ data_directory}}/media/books"
     - "{{ docker_compose_directory }}/downloads"
     - "{{ docker_appdata_directory }}/sabnzbd"
     - "{{ docker_appdata_directory }}/prowlarr"

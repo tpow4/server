@@ -26,5 +26,6 @@
     group: "{{ username }}"
     state: directory
   loop:
+    - "{{ docker_directory }}"
     - "{{ docker_appdata_directory }}"
     - "{{ docker_compose_directory }}"

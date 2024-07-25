@@ -16,7 +16,7 @@ services:
       - WEBUI_PORT=8090
     volumes:
       - "{{ docker_appdata_directory }}/qbittorrent:/config"
-      - "{{ data_directory }}/torrents:/data/torrents"
+      - "torrents_volume:/data/torrents"
     restart: unless-stopped
 
   sabnzbd:
@@ -29,7 +29,7 @@ services:
       - "TZ={{ timezone }}"
     volumes:
       - "{{ docker_appdata_directory }}/sabnzbd:/config"
-      - "{{ data_directory }}/usenet:/data/usenet"
+      - "usenet_volume:/data/usenet"
     restart: unless-stopped
 
   openbooks:
@@ -37,7 +37,7 @@ services:
     image: evanbuss/openbooks:latest
     network_mode: "container:gluetun"
     volumes:
-      - "{{ data_directory }}/media/books:/books"
+      - "books_volume:/books"
     command: --persist --name diligent-rhino -s irc.irchighway.net:9999 --tls
     restart: unless-stopped
 
@@ -75,7 +75,7 @@ services:
       - "TZ={{ timezone }}"
     volumes:
       - "{{ docker_appdata_directory }}/radarr:/config"
-      - "{{ data_directory }}:/data"
+      - "data_volume:/data"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.radarr.entryPoints=https"
@@ -96,9 +96,35 @@ services:
       - "TZ={{ timezone }}"
     volumes:
       - "{{ docker_appdata_directory }}/sonarr:/config"
-      - "{{ data_directory }}:/data"
+      - "data_volume:/data"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.sonarr.entryPoints=https"
       - "traefik.http.routers.sonarr.rule=Host(`sonarr.{{ local_domain }}`)"
     restart: unless-stopped
+
+volumes:
+  data_volume:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
+      device: ":/mnt/truenas/nas/data"
+  books_volume:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
+      device: ":/mnt/truenas/nas/data/media/books"
+  usenet_volume:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
+      device: ":/mnt/truenas/nas/data/usenet"
+  torrents_volume:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
+      device: ":/mnt/truenas/nas/data/torrents"

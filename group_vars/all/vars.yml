@@ -1,7 +1,7 @@
 username: tompo
 domain: hotdamndog.com
 local_domain: "local.{{ domain }}"
-timezone: America/Chicago
+timezone: America/Los_Angeles
 email: "{{ vault_email }}"
 ssh_public_key: "{{ vault_ssh_public_key }}"
 
@@ -11,10 +11,9 @@ packages:
   - htop
 
 # Docker settings
-#todo: add docker directory: /opt/docker
+docker_directory: /opt/docker
 docker_appdata_directory: /opt/docker/appdata
 docker_compose_directory: /opt/docker/compose
-data_directory: /data
 
 # Traefik settings
 traefik_directory: /home/tompo/traefik
