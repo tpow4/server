@@ -7,7 +7,6 @@
   loop:
     - "{{ paperless_directory }}"
     - "{{ paperless_directory }}/export"
-    - "{{ paperless_directory }}/consume"
 
 - name: Copy paperless compose.yml
   template:

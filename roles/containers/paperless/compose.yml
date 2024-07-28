@@ -56,8 +56,8 @@ services:
       MARIADB_HOST: paperless
       MARIADB_DATABASE: paperless
       MARIADB_USER: paperless
-      MARIADB_PASSWORD: paperless #"{{ paperless_db_password }}"
-      MARIADB_ROOT_PASSWORD: paperless #"{{ paperless_db_root_password }}"
+      MARIADB_PASSWORD: "{{ paperless_db_password }}"
+      MARIADB_ROOT_PASSWORD: "{{ paperless_db_root_password }}"
 
   webserver:
     image: ghcr.io/paperless-ngx/paperless-ngx:latest
@@ -72,17 +72,17 @@ services:
     networks:
       - proxy
     volumes:
-      - data:/data
-      - media:/media
-      - ./export:/usr/src/paperless/export
-      - ./consume:/usr/src/paperless/consume
+      - "data:/usr/src/paperless/data"
+      - "media:/usr/src/paperless/media"
+      - "export:/usr/src/paperless/export"
+      - "consume:/usr/src/paperless/consume"
     env_file: compose.env
     environment:
       PAPERLESS_REDIS: redis://broker:6379
       PAPERLESS_DBENGINE: mariadb
       PAPERLESS_DBHOST: db
       PAPERLESS_DBUSER: paperless # only needed if non-default username
-      PAPERLESS_DBPASS: paperless #"{{ paperless_db_password }}"
+      PAPERLESS_DBPASS: "{{ paperless_db_password }}"
       PAPERLESS_DBPORT: 3306
       PAPERLESS_TIKA_ENABLED: 1
       PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://gotenberg:3000
@@ -112,6 +112,30 @@ services:
 
 volumes:
   data:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
+      device: ":/mnt/truenas/nas/data/app data/paperless-data"
   media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
+      device: ":/mnt/truenas/nas/data/media"
   dbdata:
+    driver: local
   redisdata:
+    driver: local
+  consume:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
+      device: ":/mnt/truenas/nas/inbox/paperless"
+  export:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
+      device: ":/mnt/truenas/nas/data/app data/paperless-export"
