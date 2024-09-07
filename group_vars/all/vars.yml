@@ -4,7 +4,7 @@ local_domain: "local.{{ domain }}"
 timezone: America/Los_Angeles
 email: "{{ vault_email }}"
 ssh_public_key: "{{ vault_ssh_public_key }}"
-
+nas_ip_address: "192.168.0.108" #move to secrets
 packages:
   - vim
   - neofetch 
@@ -29,9 +29,6 @@ authelia_session_secret: "{{ vault_authelia_session_secret }}"
 cloudflare_email: "{{ vault_cloudflare_email }}"
 cloudflare_api_key: "{{ vault_cloudflare_api_key }}"
 
-# Nextcloud settings
-nextcloud_directory: /home/tompo/nextcloud
-
 # Paperless settings
 paperless_directory: /home/tompo/paperless
 paperless_admin_user: "{{ username }}"
@@ -39,7 +36,6 @@ paperless_admin_password: "{{ vault_paperless_admin_password }}"
 paperless_secret_key: "{{ vault_paperless_secret_key }}"
 paperless_db_password: "{{ vault_paperless_db_password }}"
 paperless_db_root_password: "{{ vault_paperless_db_root_password }}"
-
 
 # Gluetun settings
 gluetun_directory: /home/tompo/gluetun
@@ -50,3 +46,9 @@ gluetun_vpn_location: "{{ vault_gluetun_vpn_location }}"
 
 # Home Assistant settings
 home_assistant_directory: /home/tompo/home_assistant
+
+#Sonarqube settings
+sonar_postgres_password: "{{ vault_sonar_postgres_password }}"
+
+# Nextcloud settings
+nextcloud_directory: /home/tompo/nextcloud

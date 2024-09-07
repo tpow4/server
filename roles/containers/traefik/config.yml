@@ -5,11 +5,8 @@ http:
         - "https"
       rule: "Host(`pihole.{{ local_domain }}`)"
       middlewares:
-        - authelia
         - redirectregex-pihole
-        - default-headers
         - addprefix-pihole
-        - https-redirectscheme
       tls: {}
       service: pihole
     nextcloud:
@@ -19,9 +16,7 @@ http:
       service: nextcloud
       tls: {}
     proxmox:
-      rule: "Host(`prox.{{ domain }}`)"
-      middlewares:
-        - https-redirectscheme
+      rule: "Host(`prox.{{ local_domain }}`)"
       entryPoints:
         - "https"
       service: proxmox
