@@ -6,4 +6,5 @@
 - include_tasks: gluetun.yml
 - include_tasks: downloads.yml
 - include_tasks: sonarqube.yml
+- include_tasks: bookstack.yml
 # - include_tasks: nextcloud.yml

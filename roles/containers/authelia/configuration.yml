@@ -60,6 +60,8 @@ access_control:
       policy: bypass
     - domain: "sonarqube.{{ local_domain }}"
       policy: bypass
+    - domain: "bookstack.{{ local_domain }}"
+      policy: bypass
 
 session:
   name: authelia_session
