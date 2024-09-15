@@ -51,7 +51,10 @@ home_assistant_directory: /home/tompo/home_assistant
 sonar_postgres_password: "{{ vault_sonar_postgres_password }}"
 
 #Bookstack settings
-bookstack_db_password: :{{ vault_bookstack_db_password }}
+bookstack_db_password: :{{ vault_bookstack_db_password }} #fix that colon
 
 # Nextcloud settings
 nextcloud_directory: /home/tompo/nextcloud
+
+# Immich settings
+immich_db_password: "{{ vault_immich_db_password }}"

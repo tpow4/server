@@ -7,5 +7,6 @@
 - include_tasks: downloads.yml
 - include_tasks: sonarqube.yml
 - include_tasks: bookstack.yml
+- include_tasks: immich.yml
 - include_tasks: navidrome.yml
 # - include_tasks: nextcloud.yml
