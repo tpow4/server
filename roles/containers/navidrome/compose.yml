@@ -1,0 +1,35 @@
+networks:
+  proxy:
+    external: true
+
+version: "3"
+services:
+  navidrome:
+    image: deluan/navidrome:0.52.5
+    user: 1000:1000
+    ports:
+      - "4533:4533"
+    restart: unless-stopped
+    networks:
+    - proxy
+    environment:
+      ND_SCANSCHEDULE: 1h
+      ND_LOGLEVEL: info  
+      ND_SESSIONTIMEOUT: 24h
+      ND_BASEURL: "navidrome.{{ local_domain }}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bookstack.rule=Host(`navidrome.{{ local_domain }}`)"
+      - "traefik.http.routers.bookstack.entrypoints=https"
+    volumes:
+      - data:/data"
+      - music:/music:ro"
+
+volumes:
+  data:
+  music:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
+      device: ":/mnt/truenas/nas/data/media/music"
