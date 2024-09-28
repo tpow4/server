@@ -2,7 +2,7 @@
   set_fact:
     sudo_group: sudo
 
-- name: Ensure the necessary groupsexists
+- name: Ensure the necessary groups exist
   group:
     name: "{{ item }}"
     state: present
@@ -52,5 +52,4 @@
   authorized_key:
     user: "{{ username }}"
     state: present
-    key: "{{ ssh_public_key }}"
-    exclusive: yes #todo: check if this is needed
+    key: "{{ lookup('file', ssh_public_key) }}"
