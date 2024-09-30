@@ -1,5 +1,9 @@
 version: '3.8'
 
+networks:
+  proxy:
+    external: true
+
 services:
   traefik:
     image: traefik:v3.0.0
@@ -16,16 +20,13 @@ services:
       - "CF_API_EMAIL={{ cloudflare_email }}"
       - "CF_API_KEY={{ cloudflare_api_key }}"
     volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /home/tompo/traefik/data/traefik.yml:/traefik.yml:ro
-      - /home/tompo/traefik/data/acme.json:/acme.json
-      - /home/tompo/traefik/data/config.yml:/config.yml:ro
+      - "/etc/localtime:/etc/localtime:ro:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "{{ docker_appdata_directory }}/traefik/traefik.yml:/traefik.yml:ro"
+      - "{{ docker_appdata_directory }}/traefik/acme.json:/acme.json"
+      - "{{ docker_appdata_directory }}/traefik/config.yml:/config.yml:ro"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.rule=Host(`traefik.{{ local_domain }}`)"
       - "traefik.http.routers.traefik.entryPoints=https"
       - "traefik.http.routers.traefik.service=api@internal"
-networks:
-  proxy:
-    external: true

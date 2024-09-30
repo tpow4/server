@@ -5,20 +5,20 @@
     group: "{{ username }}"
     state: directory
   loop:
-    - "{{ traefik_directory }}"
-    - "{{ traefik_directory }}/data"
+    - "{{ docker_compose_directory }}/traefik"
+    - "{{ docker_appdata_directory }}/traefik"
 
 - name: Copy traefik docker-compose.yml
   template:
     src: ./roles/containers/traefik/compose.yml
-    dest: "{{ traefik_directory }}/compose.yml"
+    dest: "{{ docker_compose_directory }}/traefik/compose.yml"
     owner: "{{ username }}"
     group: "{{ username }}"
     force: yes
 
 - name: Ensures acme.json file exists
   file:
-    path: "{{ traefik_directory }}/data/acme.json"
+    path: "{{ docker_appdata_directory }}/traefik/acme.json"
     state: touch
     owner: "{{ username }}"
     group: "{{ username }}"
@@ -27,7 +27,7 @@
 - name: Adding traefik.yml file
   template:
     src: ./roles/containers/traefik/traefik.yml
-    dest: "{{ traefik_directory }}/data/traefik.yml"
+    dest: "{{ docker_appdata_directory }}/traefik/traefik.yml"
     owner: "{{ username }}"
     group: "{{ username }}"
     force: yes
@@ -35,11 +35,11 @@
 - name: Adding traefik config file
   template:
     src: ./roles/containers/traefik/config.yml
-    dest: "{{ traefik_directory }}/data/config.yml"
+    dest: "{{ docker_appdata_directory }}/traefik/config.yml"
     owner: "{{ username }}"
     group: "{{ username }}"
     force: yes
 
 - name: Docker-compose up traefik container
   community.docker.docker_compose:
-    project_src: "{{ traefik_directory }}"
+    project_src: "{{ docker_compose_directory }}/traefik"

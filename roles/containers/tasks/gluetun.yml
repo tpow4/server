@@ -1,18 +1,18 @@
 - name: Verify that gluetun directories exists
   ansible.builtin.file:
-    path: "{{ gluetun_directory }}"
+    path: "{{ docker_compose_directory }}/gluetun"
     owner: "{{ username }}"
     group: "{{ username }}"
     state: directory
 
-- name: Copy gluetun docker-compose.yml
+- name: Copy gluetun compose.yml
   template:
     src: ./roles/containers/gluetun/compose.yml
-    dest: "{{ gluetun_directory }}/compose.yml"
+    dest: "{{ docker_compose_directory }}/gluetun/compose.yml"
     owner: "{{ username }}"
     group: "{{ username }}"
     force: yes
 
 - name: Docker-compose up gluetun container
   community.docker.docker_compose:
-    project_src: "{{ gluetun_directory }}"
+    project_src: "{{ docker_compose_directory }}/gluetun/"

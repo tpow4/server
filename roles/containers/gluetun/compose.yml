@@ -47,8 +47,3 @@ services:
 
 volumes:
   gluetun-volume:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
-      device: ":/mnt/truenas/nas/data/app data/gluetun"

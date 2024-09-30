@@ -1,21 +1,16 @@
 ssh_public_key: "{{ vault_ssh_public_key }}"
 
-# Traefik settings
-traefik_directory: /home/tompo/traefik
+# Cloudflare settings
+cloudflare_email: "{{ vault_cloudflare_email }}"
+cloudflare_api_key: "{{ vault_cloudflare_api_key }}"
 
 # Authelia settings
-authelia_directory: /home/tompo/authelia
 authelia_jwt_secret: "{{ vault_authelia_jwt_secret }}"
 authelia_sqlite_encryption_key: "{{ vault_authelia_sqlite_encryption_key }}"
 authelia_user_password: "{{ vault_authelia_user_password }}"
 authelia_session_secret: "{{ vault_authelia_session_secret }}"
 
-# Cloudflare settings
-cloudflare_email: "{{ vault_cloudflare_email }}"
-cloudflare_api_key: "{{ vault_cloudflare_api_key }}"
-
 # Paperless settings
-paperless_directory: /home/tompo/paperless
 paperless_admin_user: "{{ username }}"
 paperless_admin_password: "{{ vault_paperless_admin_password }}"
 paperless_secret_key: "{{ vault_paperless_secret_key }}"
@@ -23,23 +18,16 @@ paperless_db_password: "{{ vault_paperless_db_password }}"
 paperless_db_root_password: "{{ vault_paperless_db_root_password }}"
 
 # Gluetun settings
-gluetun_directory: /home/tompo/gluetun
 gluetun_vpn_provider: "{{ vault_gluetun_vpn_provider }}"
 gluetun_vpn_iprange : "{{ vault_gluetun_vpn_iprange }}"
 gluetun_vpn_private_key: "{{ vault_gluetun_vpn_private_key }}"
 gluetun_vpn_location: "{{ vault_gluetun_vpn_location }}"
 
-# Home Assistant settings
-home_assistant_directory: /home/tompo/home_assistant
-
 #Sonarqube settings
 sonar_postgres_password: "{{ vault_sonar_postgres_password }}"
 
 #Bookstack settings
-bookstack_db_password: :{{ vault_bookstack_db_password }} #Todo: fix that colon
-
-# Nextcloud settings
-nextcloud_directory: /home/tompo/nextcloud
+bookstack_db_password: "{{ vault_bookstack_db_password }}"
 
 # Immich settings
 immich_db_password: "{{ vault_immich_db_password }}"

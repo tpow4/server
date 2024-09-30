@@ -7,7 +7,7 @@
   loop:
     - "{{ docker_compose_directory }}/bookstack"
 
-- name: Copy bookstack docker-compose.yml
+- name: Copy bookstack compose.yml
   template:
     src: ./roles/containers/bookstack/compose.yml
     dest: "{{ docker_compose_directory }}/bookstack/compose.yml"
