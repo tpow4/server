@@ -47,9 +47,3 @@
     backup: yes
   notify:
     - Restart SSH
-
-- name: Copy the public SSH key 
-  authorized_key:
-    user: "{{ username }}"
-    state: present
-    key: "{{ lookup('file', ssh_public_key) }}"

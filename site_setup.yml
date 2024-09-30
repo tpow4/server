@@ -1,10 +1,9 @@
-- name: Setup Home Server Applications
-  hosts: all
+- name: Setup core system setup
+  hosts: home
   become: true
 
   roles:
     - system
-    - containers
 
   handlers:
   - import_tasks: handlers/main.yml

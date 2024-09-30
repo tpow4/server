@@ -1,4 +1,4 @@
-- name: Verify that navidrome.yml directories exists
+- name: Verify that navidrome directory exists
   ansible.builtin.file:
     path: "{{ item }}"
     owner: "{{ username }}"

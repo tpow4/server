@@ -2,7 +2,6 @@ networks:
   proxy:
     external: true
 
-version: "3"
 services:
   navidrome:
     image: deluan/navidrome:0.52.5

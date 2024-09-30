@@ -41,5 +41,5 @@
     force: yes
 
 - name: Docker-compose up traefik container
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ docker_compose_directory }}/traefik"
