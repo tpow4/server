@@ -3,7 +3,6 @@ domain: hotdamndog.com
 local_domain: "local.{{ domain }}"
 timezone: America/Los_Angeles
 email: "{{ vault_email }}"
-nas_ip_address: "192.168.0.108" #Todo: pull from inventory
 packages:
   - vim
   - neofetch 

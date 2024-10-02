@@ -18,7 +18,7 @@ services:
       - "CF_API_EMAIL={{ cloudflare_email }}"
       - "CF_API_KEY={{ cloudflare_api_key }}"
     volumes:
-      - "/etc/localtime:/etc/localtime:ro:
+      - "/etc/localtime:/etc/localtime:ro"
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "{{ docker_appdata_directory }}/traefik/traefik.yml:/traefik.yml:ro"
       - "{{ docker_appdata_directory }}/traefik/acme.json:/acme.json"

@@ -110,11 +110,6 @@ services:
 
 volumes:
   data:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
-      device: ":/mnt/truenas/nas/data/app data/paperless-data"
   media:
     driver: local
     driver_opts:
@@ -122,9 +117,7 @@ volumes:
       o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
       device: ":/mnt/truenas/nas/data/media"
   dbdata:
-    driver: local
   redisdata:
-    driver: local
   consume:
     driver: local
     driver_opts:

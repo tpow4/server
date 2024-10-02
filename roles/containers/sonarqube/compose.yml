@@ -44,16 +44,6 @@ volumes:
       o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
       device: ":/mnt/truenas/nas/data/app data/sonarqube"
   sonarqube_extensions:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
-      device: ":/mnt/truenas/nas/data/app data/sonarqube-extensions"
   sonarqube_logs:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
-      device: ":/mnt/truenas/nas/logs/sonarqube"
   postgresql:
   postgresql_data:
