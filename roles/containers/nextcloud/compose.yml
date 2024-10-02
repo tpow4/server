@@ -42,5 +42,5 @@ volumes: # If you want to store the data on a different drive, see https://githu
     driver: local
     driver_opts:
       type: nfs
-      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
+      o: "addr={{ hostvars['nas'].ansible_host }},rw,nolock,soft,timeo=30,vers=4.0"
       device: ":/mnt/truenas/nas/nextcloud"

@@ -1,6 +1,4 @@
 ssh_public_key: "{{ vault_ssh_public_key }}"
-nas_ip_address: "192.168.0.108" #Todo: pull from inventory
-
 
 # Cloudflare settings
 cloudflare_email: "{{ vault_cloudflare_email }}"

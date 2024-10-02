@@ -114,7 +114,7 @@ volumes:
     driver: local
     driver_opts:
       type: nfs
-      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
+      o: "addr={{ hostvars['nas'].ansible_host }},rw,nolock,soft,timeo=30,vers=4.0"
       device: ":/mnt/truenas/nas/data/media"
   dbdata:
   redisdata:
@@ -122,11 +122,11 @@ volumes:
     driver: local
     driver_opts:
       type: nfs
-      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
+      o: "addr={{ hostvars['nas'].ansible_host }},rw,nolock,soft,timeo=30,vers=4.0"
       device: ":/mnt/truenas/nas/inbox/paperless"
   export:
     driver: local
     driver_opts:
       type: nfs
-      o: "addr={{ nas_ip_address }},rw,nolock,soft,timeo=30,vers=4.0"
+      o: "addr={{ hostvars['nas'].ansible_host }},rw,nolock,soft,timeo=30,vers=4.0"
       device: ":/mnt/truenas/nas/data/app data/paperless-export"
