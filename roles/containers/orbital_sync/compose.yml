@@ -1,0 +1,10 @@
+services:
+  orbital-sync:
+    image: mattwebbio/orbital-sync:1
+    restart: unless-stopped
+    environment:
+      PRIMARY_HOST_BASE_URL: "http://{{ hostvars['rpi1'].ansible_host }}"
+      PRIMARY_HOST_PASSWORD: "{{primary_pihole_admin_password }}"
+      SECONDARY_HOSTS_1_BASE_URL: "http://{{ hostvars['rpi2'].ansible_host }}"
+      SECONDARY_HOSTS_1_PASSWORD: "{{ secondary_pihole_admin_password }}"
+      INTERVAL_MINUTES: 60

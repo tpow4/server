@@ -9,4 +9,5 @@
 - include_tasks: bookstack.yml
 - include_tasks: immich.yml
 - include_tasks: navidrome.yml
+- include_tasks: orbital_sync.yml
 # - include_tasks: nextcloud.yml
