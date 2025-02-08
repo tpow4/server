@@ -10,4 +10,5 @@
 - include_tasks: immich.yml
 - include_tasks: navidrome.yml
 - include_tasks: orbital_sync.yml
+- include_tasks: unifi_network_application.yml
 # - include_tasks: nextcloud.yml

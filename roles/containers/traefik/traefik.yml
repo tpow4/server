@@ -31,6 +31,8 @@ entryPoints:
         - authelia@file
         - securityHeaders@file
 
+# https://community.traefik.io/t/insecureskipverify-explanation/2195
+# Required for traefik --> Unifi Controller (:8443)
 serversTransport:
   insecureSkipVerify: true
 

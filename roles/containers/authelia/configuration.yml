@@ -65,6 +65,8 @@ access_control:
       policy: bypass
     - domain: "immich.{{ local_domain }}"
       policy: bypass
+    - domain: "unifi.{{ local_domain }}"
+      policy: bypass
 
 session:
   name: authelia_session

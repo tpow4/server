@@ -67,6 +67,10 @@ http:
         stsIncludeSubdomains: true
         stsSeconds: 63072000
         stsPreload: true
+    unifiHeaders:
+      headers:
+        customRequestHeaders:
+          Authorization: "" # Removes
     addprefix-pihole:
       addPrefix:
         prefix: "/admin"
