@@ -4,7 +4,7 @@ local_domain: "local.{{ domain }}"
 timezone: America/Los_Angeles
 email: "{{ vault_email }}"
 packages:
-  - vim
+  - neovim
   - neofetch 
   - htop
 

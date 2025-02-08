@@ -9,7 +9,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ= {{ timezone }}
+      - TZ={{ timezone }}
       - APP_URL=https://bookstack.{{ local_domain }}
       - DB_HOST=bookstack_db
       - DB_PORT=3306

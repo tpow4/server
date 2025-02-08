@@ -33,5 +33,9 @@ bookstack_db_password: "{{ vault_bookstack_db_password }}"
 immich_db_password: "{{ vault_immich_db_password }}"
 
 # Orbital Sync settings
-primary_pihole_admin_password: " {{ vault_primary_pihole_admin_password }}"
+primary_pihole_admin_password: "{{ vault_primary_pihole_admin_password }}"
 secondary_pihole_admin_password: "{{ vault_secondary_pihole_admin_password }}"
+
+# Unifi Network Application 
+unifi_mongo_db_password: "{{ vault_unifi_mongo_db_password }}"
+unifi_mongo_db_root_password: "{{ vault_unifi_mongo_db_root_password }}"
