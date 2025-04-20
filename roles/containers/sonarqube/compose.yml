@@ -5,6 +5,7 @@ networks:
 services:
   sonarqube:
     image: sonarqube:community
+    restart: unless-stopped
     depends_on:
       - db
     environment:
@@ -27,6 +28,7 @@ services:
       - "traefik.http.routers.sonarqube.entrypoints=https"
   db:
     image: postgres:12
+    restart: unless-stopped
     environment:
       POSTGRES_USER: sonar
       POSTGRES_PASSWORD: "{{ sonar_postgres_password }}"

@@ -11,6 +11,7 @@ services:
       - PGID=1000
       - TZ={{ timezone }}
       - APP_URL=https://bookstack.{{ local_domain }}
+      - APP_KEY=base64:5CpnmM3IhTXFPlNROYcP7DNNTxdmR9JYkl2GjA7+pl8=
       - DB_HOST=bookstack_db
       - DB_PORT=3306
       - DB_USER=bookstack
