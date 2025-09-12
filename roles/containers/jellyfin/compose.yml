@@ -13,6 +13,10 @@ services:
       - "{{ docker_appdata_directory }}/jellyfin/cache:/cache"
       - "media_volume:/media"
     restart: 'unless-stopped'
+    group_add:
+      - '993' # "render" host group id for hardware acceleration
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
     environment:
       - JELLYFIN_PublishedServerUrl=http://jellyfin.{{ local_domain }}
     labels:

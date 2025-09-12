@@ -39,3 +39,7 @@ secondary_pihole_admin_password: "{{ vault_secondary_pihole_admin_password }}"
 # Unifi Network Application 
 unifi_mongo_db_password: "{{ vault_unifi_mongo_db_password }}"
 unifi_mongo_db_root_password: "{{ vault_unifi_mongo_db_root_password }}"
+
+# Tandor settings
+tandoor_secret_key: "{{ vault_tandoor_secret_key }}"
+tandoor_db_password: "{{ vault_tandoor_db_password }}"

@@ -1,0 +1,36 @@
+networks:
+  proxy:
+    external: true
+    
+services:
+  db_recipes:
+    restart: unless-stopped
+    image: postgres:16-alpine
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+    env_file:
+      - compose.env
+    networks:
+      - proxy
+
+  web_recipes:
+    restart: unless-stopped
+    image: vabene1111/recipes
+    env_file:
+      - compose.env
+    volumes:
+      - staticfiles:/opt/recipes/staticfiles
+      - mediafiles:/opt/recipes/mediafiles
+    depends_on:
+      - db_recipes
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tandoor.entryPoints=https"
+      - "traefik.http.routers.tandoor.rule=Host(`tandoor.{{ local_domain }}`)"
+    networks:
+      - proxy
+
+volumes:
+  postgresql:
+  staticfiles:
+  mediafiles:
