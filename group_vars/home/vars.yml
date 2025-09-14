@@ -10,6 +10,10 @@ authelia_sqlite_encryption_key: "{{ vault_authelia_sqlite_encryption_key }}"
 authelia_user_password: "{{ vault_authelia_user_password }}"
 authelia_session_secret: "{{ vault_authelia_session_secret }}"
 
+# Grafana settings
+grafana_admin_user: "{{ username }}"
+grafana_admin_password: "{{ vault_grafana_admin_password }}"
+
 # Paperless settings
 paperless_admin_user: "{{ username }}"
 paperless_admin_password: "{{ vault_paperless_admin_password }}"
