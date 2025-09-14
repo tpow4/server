@@ -38,7 +38,7 @@ access_control:
     - domain: "prometheus.{{ local_domain }}"
       policy: one_factor
     - domain: "grafana.{{ local_domain }}"
-      policy: one_factor
+      policy: bypass
     - domain: "books.{{ local_domain }}"
       policy: one_factor
     - domain: "traefik.{{ local_domain }}"
