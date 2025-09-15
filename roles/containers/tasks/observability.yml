@@ -24,6 +24,14 @@
     group: "{{ username }}"
     force: yes
 
+- name: Copy blackbox configuration
+  template:
+    src: ./roles/containers/observability/blackbox.yml
+    dest: "{{ docker_compose_directory }}/observability/blackbox.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
 # - name: Docker-compose up observability stack
 #   community.docker.docker_compose_v2:
 #     project_src: "{{ docker_compose_directory }}/observability/"

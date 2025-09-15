@@ -17,4 +17,29 @@ scrape_configs:
   - job_name: 'cadvisor'
     static_configs:
       - targets: ['cadvisor:8080']
-    scrape_interval: 15s
+  
+  # HTTP health checks for your services
+  - job_name: 'blackbox-http'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+        - "https://jellyfin.{{ local_domain }}"
+        - "https://paperless.{{ local_domain }}"
+        - "https://grafana.{{ local_domain }}"
+        - "https://radarr.{{ local_domain }}"
+        - "https://sonarr.{{ local_domain }}"
+        - "https://prowlarr.{{ local_domain }}"
+        - "https://qbit.{{ local_domain }}"
+        - "https://sabnzbd.{{ local_domain }}"
+        - "https://books.{{ local_domain }}"
+        - "https://auth.{{ local_domain }}"
+        - "https://traefik.{{ local_domain }}"
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
