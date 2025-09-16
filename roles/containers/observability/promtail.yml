@@ -1,0 +1,125 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  # Enhanced Docker container logs with structured metadata
+  - job_name: containers
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: containerlogs
+          __path__: /var/lib/docker/containers/*/*log
+    pipeline_stages:
+      - json:
+          expressions:
+            output: log
+            stream: stream
+            attrs:
+      - json:
+          expressions:
+            tag:
+            time:
+          source: attrs
+      - regex:
+          expression: (?P<container_name>(?:[^|]*))\|
+          source: tag
+      - timestamp:
+          format: RFC3339Nano
+          source: time
+      - labels:
+          stream:
+          container_name:
+      # Add structured metadata for better analysis
+      - structured_metadata:
+          container_id:
+          log_source: docker
+      # Extract log levels as structured metadata
+      - regex:
+          expression: '(?i)level=(?P<level>\w+)|(?P<level2>ERROR|WARN|INFO|DEBUG)'
+          source: output
+      - structured_metadata:
+          level:
+          log_level: '{% raw %}{{ or .level .level2 }}{% endraw %}'
+      # Extract HTTP status codes as structured metadata
+      - regex:
+          expression: '(?P<http_status>[1-5]\d{2})'
+          source: output
+      - structured_metadata:
+          http_status:
+      - output:
+          source: output
+
+  # Enhanced system logs with structured metadata
+  - job_name: syslog
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: syslog
+          __path__: /var/log/syslog
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<timestamp>\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})\s+(?P<hostname>\w+)\s+(?P<service>\w+)(\[(?P<pid>\d+)\])?\:\s*(?P<message>.*)$'
+      - labels:
+          hostname:
+          service:
+      - structured_metadata:
+          pid:
+          log_source: syslog
+      - timestamp:
+          format: Jan 2 15:04:05
+          source: timestamp
+
+  # Authentication logs with enhanced metadata
+  - job_name: auth
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: auth
+          __path__: /var/log/auth.log
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<timestamp>\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2})\s+(?P<hostname>\w+)\s+(?P<service>\w+)(\[(?P<pid>\d+)\])?\:\s*(?P<message>.*)$'
+      - labels:
+          hostname:
+          service:
+      # Extract authentication events
+      - regex:
+          expression: '(?P<auth_event>Failed|Accepted|Invalid|session)'
+          source: message
+      - structured_metadata:
+          auth_event:
+          log_source: auth
+          security_relevant: 'true'
+      - timestamp:
+          format: Jan 2 15:04:05
+          source: timestamp
+
+  # Docker daemon logs with structured metadata
+  - job_name: docker
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: docker
+          __path__: /var/log/daemon.log
+    pipeline_stages:
+      - match:
+          selector: '{job="docker"}'
+          stages:
+            - regex:
+                expression: '.*dockerd.*'
+            - labels:
+                service: docker
+            - structured_metadata:
+                log_source: docker_daemon
+                system_component: 'true'
