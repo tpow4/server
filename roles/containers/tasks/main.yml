@@ -15,6 +15,3 @@
 - include_tasks: paperless.yml
 - include_tasks: sonarqube.yml
 - include_tasks: tandoor.yml
-# - include_tasks: wikijs.yml
-# - include_tasks: bookstack.yml
-# - include_tasks: nextcloud.yml

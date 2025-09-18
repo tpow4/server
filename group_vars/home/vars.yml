@@ -30,9 +30,6 @@ gluetun_vpn_location: "{{ vault_gluetun_vpn_location }}"
 #Sonarqube settings
 sonar_postgres_password: "{{ vault_sonar_postgres_password }}"
 
-#Bookstack settings
-bookstack_db_password: "{{ vault_bookstack_db_password }}"
-
 # Immich settings
 immich_db_password: "{{ vault_immich_db_password }}"
 
