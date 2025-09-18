@@ -3,7 +3,21 @@ global:
   sendAnonymousUsage: false
 
 log:
-  level: DEBUG #TODO: change for production
+  level: INFO 
+  format: json # format for Loki integration
+
+accessLog:
+  format: json  # format for Loki integration
+  fields:
+    defaultMode: keep
+    names:
+      StartUTC: drop  # Reduce noise
+    headers:
+      defaultMode: keep
+      names:
+        User-Agent: keep
+        Authorization: drop  # Prevent leaking sensitive info
+        Cookie: drop       # Prevent leaking sensitive info
 
 api:
   dashboard: true
