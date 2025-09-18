@@ -41,8 +41,6 @@ access_control:
       policy: one_factor
     - domain: "jellyfin.{{ local_domain }}"
       policy: bypass
-    - domain: "nextcloud.{{ local_domain }}"
-      policy: bypass
     - domain: "radarr.{{ local_domain }}"
       policy: bypass
     - domain: "sonarr.{{ local_domain }}"
@@ -58,8 +56,6 @@ access_control:
     - domain: "homeassistant.{{ local_domain }}"
       policy: bypass
     - domain: "sonarqube.{{ local_domain }}"
-      policy: bypass
-    - domain: "bookstack.{{ local_domain }}"
       policy: bypass
     - domain: "navidrome.{{ local_domain }}"
       policy: bypass

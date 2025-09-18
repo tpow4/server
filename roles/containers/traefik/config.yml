@@ -9,12 +9,6 @@ http:
         - addprefix-pihole
       tls: {}
       service: pihole
-    nextcloud:
-      rule: "Host(`nextcloud.{{ local_domain }}`)"
-      entryPoints:
-        - "https"
-      service: nextcloud
-      tls: {}
     proxmox:
       rule: "Host(`prox.{{ local_domain }}`)"
       entryPoints:
@@ -28,10 +22,6 @@ http:
         servers:
           - url: "http://{{ hostvars['rpi1'].ansible_host }}:80"
         # passHostHeader: true
-    nextcloud:
-      loadBalancer:
-        servers:
-          - url: "http://localhost:11000"
     proxmox:
       loadBalancer:
         servers:
