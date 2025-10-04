@@ -5,6 +5,7 @@
     group: "{{ username }}"
     state: directory
   loop:
+    - "{{ docker_compose_directory }}/gluetun"
     - "{{ docker_compose_directory }}/downloads"
     - "{{ docker_appdata_directory }}/sabnzbd"
     - "{{ docker_appdata_directory }}/prowlarr"

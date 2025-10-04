@@ -3,10 +3,54 @@ networks:
     external: true
 
 services:
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun
+    volumes:
+      - gluetun-volume:/gluetun
+    networks:
+      - proxy
+    ports:
+      - "8080:80" # openbooks web UI
+      - "8081:8080" # sabnzbd web UI 
+      - "8090:8090" # qbittorrent tcp
+      - "8090:8090/udp" # qbittorrent udp
+    environment:
+      TZ: "{{ timezone }}"
+      VPN_SERVICE_PROVIDER: "{{ gluetun_vpn_provider }}"
+      VPN_TYPE: wireguard
+      WIREGUARD_PRIVATE_KEY: "{{ gluetun_vpn_private_key }}"
+      WIREGUARD_ADDRESSES: "{{ gluetun_vpn_iprange }}"
+      SERVER_CITIES: "{{ gluetun_vpn_location }}"
+    labels:
+      - "traefik.enable=true"
+      ## HTTP Routers
+      - "traefik.http.routers.gluetun-qbittorrent-rtr.entrypoints=https"
+      - "traefik.http.routers.gluetun-qbittorrent-rtr.rule=Host(`qbit.{{ local_domain }}`)" # qbittorrent
+      - "traefik.http.routers.gluetun-sabnzbd-rtr.entrypoints=https"
+      - "traefik.http.routers.gluetun-sabnzbd-rtr.rule=Host(`sabnzbd.{{ local_domain }}`)" # Sabnzbd
+      - "traefik.http.routers.gluetun-openbooks-rtr.entrypoints=https"
+      - "traefik.http.routers.gluetun-openbooks-rtr.rule=Host(`books.{{ local_domain }}`)" # openbooks
+      ## HTTP Services
+      - "traefik.http.routers.gluetun-qbittorrent-rtr.service=gluetun-qbittorrent-svc" # qbittorrent
+      - "traefik.http.routers.gluetun-sabnzbd-rtr.service=gluetun-sabnzbd-svc" # Sabnzbd
+      - "traefik.http.routers.gluetun-openbooks-rtr.service=gluetun-openbooks-svc" # openbooks
+      - "traefik.http.services.gluetun-qbittorrent-svc.loadbalancer.server.port=8090" # qbittorrent
+      - "traefik.http.services.gluetun-sabnzbd-svc.loadbalancer.server.port=8080" # Sabnzbd
+      - "traefik.http.services.gluetun-openbooks-svc.loadbalancer.server.port=80" # openbooks
+
   qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest
+    image: lscr.io/linuxserver/qbittorrent:5.1.2
     container_name: qbittorrent
-    network_mode: "container:gluetun"
+    depends_on:
+      gluetun:
+        condition: service_healthy
+    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
@@ -18,9 +62,11 @@ services:
     restart: unless-stopped
 
   sabnzbd:
-    image: lscr.io/linuxserver/sabnzbd:latest
+    image: lscr.io/linuxserver/sabnzbd:4.5.3
     container_name: sabnzbd
-    network_mode: "container:gluetun"
+    depends_on:
+      - gluetun
+    network_mode: "service:gluetun"
     environment:
       - PUID=1000
       - PGID=1000
@@ -33,7 +79,9 @@ services:
   openbooks:
     container_name: openbooks
     image: evanbuss/openbooks:latest
-    network_mode: "container:gluetun"
+    depends_on:
+      - gluetun
+    network_mode: "service:gluetun"
     volumes:
       - "books_volume:/books"
     command: --persist --name diligent-rhino -s irc.irchighway.net:9999 --tls
@@ -126,3 +174,4 @@ volumes:
       type: nfs
       o: "addr={{ hostvars['nas1'].ansible_host }},rw,nolock,soft,timeo=30,vers=4.0"
       device: ":/mnt/truenas/nas/data/torrents"
+  gluetun-volume:

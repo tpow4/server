@@ -7,7 +7,6 @@
 # - include_tasks: unifi_network_application.yml
 
 # Applications
-- include_tasks: gluetun.yml
 - include_tasks: downloads.yml
 - include_tasks: jellyfin.yml
 - include_tasks: immich.yml
