@@ -51,8 +51,6 @@ access_control:
       policy: bypass
     - domain: "sabnzbd.{{ local_domain }}"
       policy: bypass
-    - domain: "homeassistant.{{ local_domain }}"
-      policy: bypass
     - domain: "sonarqube.{{ local_domain }}"
       policy: bypass
     - domain: "navidrome.{{ local_domain }}"
