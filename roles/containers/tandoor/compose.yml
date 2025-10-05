@@ -15,7 +15,7 @@ services:
 
   web_recipes:
     restart: unless-stopped
-    image: vabene1111/recipes
+    image: vabene1111/recipes:2
     env_file:
       - compose.env
     volumes:

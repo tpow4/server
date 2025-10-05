@@ -58,7 +58,7 @@ services:
       MARIADB_ROOT_PASSWORD: "{{ paperless_db_root_password }}"
 
   webserver:
-    image: ghcr.io/paperless-ngx/paperless-ngx:2.14
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.18
     restart: unless-stopped
     depends_on:
       - db
