@@ -4,7 +4,7 @@ networks:
 
 services:
   authelia:
-    image: authelia/authelia
+    image: authelia/authelia:4
     container_name: authelia
     volumes:
       - "{{ docker_appdata_directory }}/authelia/:/config"
