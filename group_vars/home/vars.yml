@@ -44,3 +44,7 @@ unifi_mongo_db_root_password: "{{ vault_unifi_mongo_db_root_password }}"
 # Tandor settings
 tandoor_secret_key: "{{ vault_tandoor_secret_key }}"
 tandoor_db_password: "{{ vault_tandoor_db_password }}"
+
+# Vikunja settings
+vikunja_database_password: "{{ vault_vikunja_database_password }}"
+vikunja_jwt_secret: "{{ vault_vikunja_jwt_secret }}"

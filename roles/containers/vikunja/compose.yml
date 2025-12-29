@@ -1,0 +1,43 @@
+networks:
+  proxy:
+    external: true
+  internal:
+
+services:
+  vikunja:
+    image: vikunja/vikunja:latest
+    environment:
+      VIKUNJA_SERVICE_PUBLICURL: 'https://vikunja.{{ local_domain }}'
+      VIKUNJA_DATABASE_HOST: vikunja-db
+      VIKUNJA_DATABASE_PASSWORD: '{{ vikunja_database_password }}'
+      VIKUNJA_DATABASE_TYPE: postgres
+      VIKUNJA_DATABASE_USER: vikunja
+      VIKUNJA_DATABASE_DATABASE: vikunja
+      VIKUNJA_SERVICE_JWTSECRET: '{{ vikunja_jwt_secret }}'
+    volumes:
+      - "{{ docker_appdata_directory }}/vikunja/files:/app/vikunja/files"
+    networks:
+      - proxy
+      - internal
+    depends_on:
+      vikunja-db:
+        condition: service_healthy
+    restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vikunja.rule=Host(`vikunja.{{ local_domain }}`)"
+      - "traefik.http.routers.vikunja.entrypoints=https"
+  vikunja-db:
+    image: postgres:18
+    environment:
+      POSTGRES_PASSWORD: '{{ vikunja_database_password }}'
+      POSTGRES_USER: vikunja
+    volumes:
+      - '{{ docker_appdata_directory }}/vikunja/db:/var/lib/postgresql'
+    restart: unless-stopped
+    networks: 
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U $$POSTGRES_USER"]
+      interval: 2s
+      start_period: 30s
