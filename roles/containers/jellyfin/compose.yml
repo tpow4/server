@@ -4,7 +4,7 @@ networks:
 
 services:
   jellyfin:
-    image: jellyfin/jellyfin # TODO pin to a specific version
+    image: jellyfin/jellyfin:10.11
     container_name: jellyfin
     networks:
       - proxy
