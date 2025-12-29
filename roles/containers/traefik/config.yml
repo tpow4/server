@@ -10,7 +10,7 @@ http:
       tls: {}
       service: pihole
     proxmox:
-      rule: "Host(`prox.{{ local_domain }}`)"
+      rule: "Host(`pve.{{ local_domain }}`)"
       entryPoints:
         - "https"
       service: proxmox
@@ -21,12 +21,10 @@ http:
       loadBalancer:
         servers:
           - url: "http://{{ hostvars['rpi1'].ansible_host }}:80"
-        # passHostHeader: true
     proxmox:
       loadBalancer:
         servers:
-          - url: "http://192.168.0.247:8006"
-        # passHostHeader: true
+          - url: "http://10.0.0.5:8006"
 
   middlewares:
     authelia:
@@ -38,6 +36,12 @@ http:
           - Remote-Groups
           - Remote-Name
           - Remote-Email
+    default-allowlist:
+      ipAllowList:
+        sourceRange:
+          - "10.0.0.0/8"
+          - "192.168.0.0/16"
+          - "172.16.0.0/12"
     securityHeaders:
       headers:
         customResponseHeaders:
@@ -52,7 +56,6 @@ http:
         customRequestHeaders:
           X-Forwarded-Proto: "https"
         contentTypeNosniff: true
-        browserXssFilter: true
         forceSTSHeader: true
         stsIncludeSubdomains: true
         stsSeconds: 63072000
@@ -64,29 +67,7 @@ http:
     addprefix-pihole:
       addPrefix:
         prefix: "/admin"
-    https-redirectscheme:
-      redirectScheme:
-        scheme: https
-        permanent: true
     redirectregex-pihole:
       redirectRegex:
         regex: /admin/$
         replacement: /
-    default-headers:
-      headers:
-        frameDeny: true
-        browserXssFilter: true
-        contentTypeNosniff: true
-        forceSTSHeader: true
-        stsIncludeSubdomains: true
-        stsPreload: true
-        stsSeconds: 15552000
-        customFrameOptionsValue: SAMEORIGIN
-        customRequestHeaders:
-          X-Forwarded-Proto: https
-    default-allowlist:
-      ipAllowList:
-        sourceRange:
-          - "10.0.0.0/8"
-          - "192.168.0.0/16"
-          - "172.16.0.0/12"
