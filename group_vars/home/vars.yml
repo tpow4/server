@@ -10,6 +10,10 @@ authelia_sqlite_encryption_key: "{{ vault_authelia_sqlite_encryption_key }}"
 authelia_user_password: "{{ vault_authelia_user_password }}"
 authelia_session_secret: "{{ vault_authelia_session_secret }}"
 
+# Grafana settings
+grafana_admin_user: "{{ username }}"
+grafana_admin_password: "{{ vault_grafana_admin_password }}"
+
 # Paperless settings
 paperless_admin_user: "{{ username }}"
 paperless_admin_password: "{{ vault_paperless_admin_password }}"
@@ -40,3 +44,7 @@ unifi_mongo_db_root_password: "{{ vault_unifi_mongo_db_root_password }}"
 # Tandor settings
 tandoor_secret_key: "{{ vault_tandoor_secret_key }}"
 tandoor_db_password: "{{ vault_tandoor_db_password }}"
+
+# Vikunja settings
+vikunja_database_password: "{{ vault_vikunja_database_password }}"
+vikunja_jwt_secret: "{{ vault_vikunja_jwt_secret }}"

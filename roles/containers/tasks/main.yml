@@ -3,10 +3,10 @@
 - include_tasks: authelia.yml
 - include_tasks: traefik_v3.yml
 - include_tasks: orbital_sync.yml
+- include_tasks: observability.yml
 # - include_tasks: unifi_network_application.yml
 
 # Applications
-- include_tasks: gluetun.yml
 - include_tasks: downloads.yml
 - include_tasks: jellyfin.yml
 - include_tasks: immich.yml
@@ -14,3 +14,4 @@
 - include_tasks: paperless.yml
 - include_tasks: sonarqube.yml
 - include_tasks: tandoor.yml
+- include_tasks: vikunja.yml

@@ -1,9 +1,27 @@
+# yaml-language-server: $schema=https://www.schemastore.org/traefik-v3.json
+
 global:
   checkNewVersion: false
   sendAnonymousUsage: false
 
+# log format for Loki integration
 log:
-  level: DEBUG #TODO: change for production
+  level: INFO 
+  format: json 
+
+# log format for access logs with Loki integration
+accessLog:
+  format: json  
+  fields:
+    defaultMode: keep
+    names:
+      StartUTC: drop  # Reduce noise
+    headers:
+      defaultMode: keep
+      names:
+        User-Agent: keep
+        Authorization: drop  # Prevent leaking sensitive info
+        Cookie: drop       # Prevent leaking sensitive info
 
 api:
   dashboard: true
@@ -30,6 +48,7 @@ entryPoints:
       middlewares:
         - authelia@file
         - securityHeaders@file
+        - default-allowlist@file
 
 # https://community.traefik.io/t/insecureskipverify-explanation/2195
 # Required for traefik --> Unifi Controller (:8443)
