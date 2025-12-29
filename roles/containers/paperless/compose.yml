@@ -33,21 +33,22 @@
 networks:
   proxy:
     external: true
+  internal:
 
 services:
   broker:
     image: docker.io/library/redis:7
     restart: unless-stopped
     networks:
-      - proxy
+      - internal
     volumes:
       - redisdata:/data
 
-  db:
+  paperless-db:
     image: docker.io/library/mariadb:10
     restart: unless-stopped
     networks:
-      - proxy
+      - internal
     volumes:
       - dbdata:/var/lib/mysql
     environment:
@@ -58,16 +59,17 @@ services:
       MARIADB_ROOT_PASSWORD: "{{ paperless_db_root_password }}"
 
   webserver:
-    image: ghcr.io/paperless-ngx/paperless-ngx:2.18
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.20
     restart: unless-stopped
     depends_on:
-      - db
+      - paperless-db
       - broker
       - gotenberg
       - tika
     ports:
       - "8000:8000"
     networks:
+      - internal
       - proxy
     volumes:
       - "data:/usr/src/paperless/data"
@@ -78,7 +80,7 @@ services:
     environment:
       PAPERLESS_REDIS: redis://broker:6379
       PAPERLESS_DBENGINE: mariadb
-      PAPERLESS_DBHOST: db
+      PAPERLESS_DBHOST: paperless-db
       PAPERLESS_DBUSER: paperless # only needed if non-default username
       PAPERLESS_DBPASS: "{{ paperless_db_password }}"
       PAPERLESS_DBPORT: 3306
@@ -95,7 +97,7 @@ services:
     image: docker.io/gotenberg/gotenberg:7.10
     restart: unless-stopped
     networks:
-      - proxy
+      - internal
     # The gotenberg chromium route is used to convert .eml files. We do not
     # want to allow external content like tracking pixels or even javascript.
     command:
@@ -104,10 +106,10 @@ services:
       - "--chromium-allow-list=file:///tmp/.*"
 
   tika:
-    image: ghcr.io/paperless-ngx/tika:latest
+    image: docker.io/apache/tika:latest
     restart: unless-stopped
     networks:
-      - proxy
+      - internal
 
 volumes:
   data:
@@ -116,7 +118,7 @@ volumes:
     driver_opts:
       type: nfs
       o: "addr={{ hostvars['nas1'].ansible_host }},rw,nolock,soft,timeo=30,vers=4.0"
-      device: ":/mnt/truenas/nas/data/media"
+      device: ":/mnt/truenas/nas/data/media/paperless"
   dbdata:
   redisdata:
   consume:
