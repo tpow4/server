@@ -4,7 +4,7 @@ networks:
 
 services:
   gluetun:
-    image: qmcgaw/gluetun
+    image: qmcgaw/gluetun:v3.40.2
     container_name: gluetun
     restart: unless-stopped
     cap_add:
@@ -45,7 +45,7 @@ services:
       - "traefik.http.services.gluetun-openbooks-svc.loadbalancer.server.port=80" # openbooks
 
   qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:5.1.2
+    image: lscr.io/linuxserver/qbittorrent:latest # latest is the stable release tag
     container_name: qbittorrent
     depends_on:
       gluetun:
@@ -62,7 +62,7 @@ services:
     restart: unless-stopped
 
   sabnzbd:
-    image: lscr.io/linuxserver/sabnzbd:4.5.3
+    image: lscr.io/linuxserver/sabnzbd:latest # latest is the stable release tag
     container_name: sabnzbd
     depends_on:
       - gluetun
@@ -78,7 +78,7 @@ services:
 
   openbooks:
     container_name: openbooks
-    image: evanbuss/openbooks:latest
+    image: evanbuss/openbooks:latest # latest is the stable release tag
     depends_on:
       - gluetun
     network_mode: "service:gluetun"
@@ -89,7 +89,7 @@ services:
 
   prowlarr:
     container_name: prowlarr
-    image: ghcr.io/hotio/prowlarr
+    image: ghcr.io/hotio/prowlarr:latest # latest is the stable release tag
     ports:
       - "9696:9696"
     networks:
@@ -109,7 +109,7 @@ services:
 
   radarr:
     container_name: radarr
-    image: ghcr.io/hotio/radarr
+    image: ghcr.io/hotio/radarr:latest # latest is the stable release tag
     ports:
       - "7878:7878"
     networks:
@@ -130,7 +130,7 @@ services:
 
   sonarr:
     container_name: sonarr
-    image: ghcr.io/hotio/sonarr
+    image: ghcr.io/hotio/sonarr:latest # latest is the stable release tag
     ports:
       - "8989:8989"
     networks:
