@@ -3,7 +3,21 @@ global:
   sendAnonymousUsage: false
 
 log:
-  level: DEBUG #todo change for production
+  level: INFO 
+  format: json # format for Loki integration
+
+accessLog:
+  format: json  # format for Loki integration
+  fields:
+    defaultMode: keep
+    names:
+      StartUTC: drop  # Reduce noise
+    headers:
+      defaultMode: keep
+      names:
+        User-Agent: keep
+        Authorization: drop  # Prevent leaking sensitive info
+        Cookie: drop       # Prevent leaking sensitive info
 
 api:
   dashboard: true
@@ -31,12 +45,12 @@ entryPoints:
         - authelia@file
         - securityHeaders@file
 
+# https://community.traefik.io/t/insecureskipverify-explanation/2195
+# Required for traefik --> Unifi Controller (:8443)
 serversTransport:
   insecureSkipVerify: true
 
 providers:
-  providersThrottleDuration: "2s"
-
   file:
     filename: /config.yml #todo change path
     watch: true
@@ -49,10 +63,11 @@ certificatesResolvers:
  cloudflare:
    acme:
      email: "{{ cloudflare_email }}"
-     storage: acme.json #todo change path
+     storage: acme.json
+     caServer: https://acme-v02.api.letsencrypt.org/directory #prod
+     #staging environment https://acme-staging-v02.api.letsencrypt.org/directory
      dnsChallenge:
        provider: cloudflare
-       disablePropagationCheck: true
        resolvers:
          - "1.1.1.1:53"
          - "1.0.0.1:53"

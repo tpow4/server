@@ -1,22 +1,57 @@
-- name: Download Python
+- name: Update apt cache
   apt:
-    name: python3
+    update_cache: yes
+
+- name: Install Docker dependencies
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
     state: present
 
-- name: Download Pip
-  apt:
-    name: python3-pip
-    state: present
+- name: Download Docker's official GPG key
+  ansible.builtin.get_url:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    dest: /etc/apt/keyrings/docker.asc
+    mode: '0644'
 
-- name: Download Docker
-  apt:
-    name: docker.io
+- name: Add Docker repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
     state: present
+    filename: docker
 
-- name: Install Docker Compose
-  pip:
-    name: docker-compose
+- name: Update apt cache again after adding Docker repo
+  apt:
+    update_cache: yes
+
+- name: Install Docker apps
+  apt:
+    name: 
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin 
+      - docker-compose-plugin
+      - python3
+      - python3-pip
+      - python3-docker 
     state: present
+    update_cache: yes
+
+- name: Ensure Docker service is running
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Add current user to docker group
+  user:
+    name: "{{ username }}"
+    groups: docker
+    append: yes
 
 - name: Verify that docker directories exists
   ansible.builtin.file:
@@ -25,5 +60,10 @@
     group: "{{ username }}"
     state: directory
   loop:
+    - "{{ docker_directory }}"
     - "{{ docker_appdata_directory }}"
     - "{{ docker_compose_directory }}"
+
+- name: Create a network
+  docker_network:
+    name: proxy

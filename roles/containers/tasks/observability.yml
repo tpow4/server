@@ -1,0 +1,52 @@
+- name: Create observability directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+  loop:
+    - "{{ docker_compose_directory }}/observability/"
+
+- name: Copy observability docker-compose.yml
+  template:
+    src: ./roles/containers/observability/compose.yml
+    dest: "{{ docker_compose_directory }}/observability/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Copy prometheus configuration
+  template:
+    src: ./roles/containers/observability/prometheus.yml
+    dest: "{{ docker_compose_directory }}/observability/prometheus.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Copy blackbox configuration
+  template:
+    src: ./roles/containers/observability/blackbox.yml
+    dest: "{{ docker_compose_directory }}/observability/blackbox.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Copy loki configuration
+  template:
+    src: ./roles/containers/observability/loki.yml
+    dest: "{{ docker_compose_directory }}/observability/loki.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Copy promtail configuration
+  template:
+    src: ./roles/containers/observability/promtail.yml
+    dest: "{{ docker_compose_directory }}/observability/promtail.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Docker-compose up observability stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ docker_compose_directory }}/observability/"

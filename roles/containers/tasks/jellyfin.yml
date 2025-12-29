@@ -9,9 +9,6 @@
     - "{{ docker_appdata_directory }}/jellyfin"
     - "{{ docker_appdata_directory }}/jellyfin/config"
     - "{{ docker_appdata_directory }}/jellyfin/cache"
-    - "{{ data_directory }}/media"
-    - "{{ data_directory }}/media/movies"
-    - "{{ data_directory }}/media/tv"
 
 - name: Copy jellyfin docker-compose.yml
   template:
@@ -22,5 +19,5 @@
     force: yes
 
 - name: Docker-compose up jellyfin container
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ docker_compose_directory }}/jellyfin/"

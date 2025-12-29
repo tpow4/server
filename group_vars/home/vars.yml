@@ -1,0 +1,46 @@
+ssh_public_key: "{{ vault_ssh_public_key }}"
+
+# Cloudflare settings
+cloudflare_email: "{{ vault_cloudflare_email }}"
+cloudflare_api_key: "{{ vault_cloudflare_api_key }}"
+
+# Authelia settings
+authelia_jwt_secret: "{{ vault_authelia_jwt_secret }}"
+authelia_sqlite_encryption_key: "{{ vault_authelia_sqlite_encryption_key }}"
+authelia_user_password: "{{ vault_authelia_user_password }}"
+authelia_session_secret: "{{ vault_authelia_session_secret }}"
+
+# Grafana settings
+grafana_admin_user: "{{ username }}"
+grafana_admin_password: "{{ vault_grafana_admin_password }}"
+
+# Paperless settings
+paperless_admin_user: "{{ username }}"
+paperless_admin_password: "{{ vault_paperless_admin_password }}"
+paperless_secret_key: "{{ vault_paperless_secret_key }}"
+paperless_db_password: "{{ vault_paperless_db_password }}"
+paperless_db_root_password: "{{ vault_paperless_db_root_password }}"
+
+# Gluetun settings
+gluetun_vpn_provider: "{{ vault_gluetun_vpn_provider }}"
+gluetun_vpn_iprange : "{{ vault_gluetun_vpn_iprange }}"
+gluetun_vpn_private_key: "{{ vault_gluetun_vpn_private_key }}"
+gluetun_vpn_location: "{{ vault_gluetun_vpn_location }}"
+
+#Sonarqube settings
+sonar_postgres_password: "{{ vault_sonar_postgres_password }}"
+
+# Immich settings
+immich_db_password: "{{ vault_immich_db_password }}"
+
+# Orbital Sync settings
+primary_pihole_admin_password: "{{ vault_primary_pihole_admin_password }}"
+secondary_pihole_admin_password: "{{ vault_secondary_pihole_admin_password }}"
+
+# Unifi Network Application 
+unifi_mongo_db_password: "{{ vault_unifi_mongo_db_password }}"
+unifi_mongo_db_root_password: "{{ vault_unifi_mongo_db_root_password }}"
+
+# Tandor settings
+tandoor_secret_key: "{{ vault_tandoor_secret_key }}"
+tandoor_db_password: "{{ vault_tandoor_db_password }}"

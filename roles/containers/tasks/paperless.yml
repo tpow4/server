@@ -5,14 +5,12 @@
     group: "{{ username }}"
     state: directory
   loop:
-    - "{{ paperless_directory }}"
-    - "{{ paperless_directory }}/export"
-    - "{{ paperless_directory }}/consume"
+    - "{{ docker_compose_directory }}/paperless"
 
 - name: Copy paperless compose.yml
   template:
     src: ./roles/containers/paperless/compose.yml
-    dest: "{{ paperless_directory }}/compose.yml"
+    dest: "{{ docker_compose_directory }}/paperless/compose.yml"
     owner: "{{ username }}"
     group: "{{ username }}"
     force: yes
@@ -20,12 +18,12 @@
 - name: Copy paperless compose.env
   template:
     src: ./roles/containers/paperless/compose.env
-    dest: "{{ paperless_directory }}/compose.env"
+    dest: "{{ docker_compose_directory }}/paperless/compose.env"
     owner: "{{ username }}"
     group: "{{ username }}"
     force: yes
 
 - name: Docker-compose up paperless container
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     state: present
-    project_src: "{{ paperless_directory }}"
+    project_src: "{{ docker_compose_directory }}/paperless"

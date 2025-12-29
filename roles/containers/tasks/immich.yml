@@ -1,0 +1,45 @@
+- name: Verify that immich directories exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    state: directory
+  loop:
+    - "{{ docker_compose_directory }}/immich"
+
+- name: Copy immich compose.yml
+  template:
+    src: ./roles/containers/immich/compose.yml
+    dest: "{{ docker_compose_directory }}/immich/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Copy immich transcoding file
+  template:
+    src: ./roles/containers/immich/hwaccel.transcoding.yml
+    dest: "{{ docker_compose_directory }}/immich/hwaccel.transcoding.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Copy immich ML file
+  template:
+    src: ./roles/containers/immich/hwaccel.ml.yml
+    dest: "{{ docker_compose_directory }}/immich/hwaccel.ml.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Copy immich env file
+  template:
+    src: ./roles/containers/immich/immich.env
+    dest: "{{ docker_compose_directory }}/immich/.env"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+
+- name: Docker-compose up immich container
+  community.docker.docker_compose_v2:
+    project_src: "{{ docker_compose_directory }}/immich"

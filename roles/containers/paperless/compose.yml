@@ -30,8 +30,6 @@
 # For more extensive installation and update instructions, refer to the
 # documentation.
 
-version: "3.4"
-
 networks:
   proxy:
     external: true
@@ -56,11 +54,11 @@ services:
       MARIADB_HOST: paperless
       MARIADB_DATABASE: paperless
       MARIADB_USER: paperless
-      MARIADB_PASSWORD: paperless #"{{ paperless_db_password }}"
-      MARIADB_ROOT_PASSWORD: paperless #"{{ paperless_db_root_password }}"
+      MARIADB_PASSWORD: "{{ paperless_db_password }}"
+      MARIADB_ROOT_PASSWORD: "{{ paperless_db_root_password }}"
 
   webserver:
-    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.18
     restart: unless-stopped
     depends_on:
       - db
@@ -72,21 +70,22 @@ services:
     networks:
       - proxy
     volumes:
-      - data:/data
-      - media:/media
-      - ./export:/usr/src/paperless/export
-      - ./consume:/usr/src/paperless/consume
+      - "data:/usr/src/paperless/data"
+      - "media:/usr/src/paperless/media"
+      - "export:/usr/src/paperless/export"
+      - "consume:/usr/src/paperless/consume"
     env_file: compose.env
     environment:
       PAPERLESS_REDIS: redis://broker:6379
       PAPERLESS_DBENGINE: mariadb
       PAPERLESS_DBHOST: db
       PAPERLESS_DBUSER: paperless # only needed if non-default username
-      PAPERLESS_DBPASS: paperless #"{{ paperless_db_password }}"
+      PAPERLESS_DBPASS: "{{ paperless_db_password }}"
       PAPERLESS_DBPORT: 3306
       PAPERLESS_TIKA_ENABLED: 1
       PAPERLESS_TIKA_GOTENBERG_ENDPOINT: http://gotenberg:3000
       PAPERLESS_TIKA_ENDPOINT: http://tika:9998
+      PAPERLESS_CONSUMER_POLLING : 60
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.paperless.entryPoints=https"
@@ -113,5 +112,22 @@ services:
 volumes:
   data:
   media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr={{ hostvars['nas1'].ansible_host }},rw,nolock,soft,timeo=30,vers=4.0"
+      device: ":/mnt/truenas/nas/data/media"
   dbdata:
   redisdata:
+  consume:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr={{ hostvars['nas1'].ansible_host }},rw,nolock,soft,timeo=30,vers=4.0"
+      device: ":/mnt/truenas/nas/inbox/paperless"
+  export:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr={{ hostvars['nas1'].ansible_host }},rw,nolock,soft,timeo=30,vers=4.0"
+      device: ":/mnt/truenas/nas/data/app data/paperless-export"

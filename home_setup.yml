@@ -1,0 +1,6 @@
+- name: Setup container infrastructure on home server
+  hosts: home
+  become: true
+
+  roles:
+    - containers
