@@ -2,7 +2,7 @@
 - include_tasks: docker.yml
 - include_tasks: authelia.yml
 - include_tasks: traefik_v3.yml
-- include_tasks: orbital_sync.yml
+- include_tasks: nebula_sync.yml
 - include_tasks: observability.yml
 # - include_tasks: unifi_network_application.yml
 
