@@ -5,10 +5,7 @@
     group: "{{ username }}"
     state: directory
   loop:
-    - "{{ data_directory }}"
-    - "{{ data_directory }}/torrents"
-    - "{{ data_directory }}/usenet"
-    - "{{ data_directory}}/media/books"
+    - "{{ docker_compose_directory }}/gluetun"
     - "{{ docker_compose_directory }}/downloads"
     - "{{ docker_appdata_directory }}/sabnzbd"
     - "{{ docker_appdata_directory }}/prowlarr"
@@ -24,5 +21,5 @@
     force: yes
 
 - name: Docker-compose up downloads containers
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ docker_compose_directory }}/downloads/"

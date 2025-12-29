@@ -1,0 +1,22 @@
+- name: Verify that vikunja directory exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    state: directory
+  loop:
+    - "{{ docker_compose_directory }}/vikunja"
+    - "{{ docker_appdata_directory }}/vikunja/files"
+    - "{{ docker_appdata_directory }}/vikunja/db"
+
+- name: Copy vikunja compose.yml
+  template:
+    src: ./roles/containers/vikunja/compose.yml
+    dest: "{{ docker_compose_directory }}/vikunja/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Docker compose up vikunja container
+  community.docker.docker_compose_v2:
+    project_src: "{{ docker_compose_directory }}/vikunja/"

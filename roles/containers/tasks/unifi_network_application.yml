@@ -1,0 +1,32 @@
+- name: Verify that unifi directories exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    state: directory
+  loop:
+    - "{{ docker_compose_directory }}/unifi"
+    - "{{ docker_appdata_directory }}/unifi"
+    - "{{ docker_appdata_directory }}/unifi/data"
+    - "{{ docker_appdata_directory }}/unifi/config"
+
+- name: Copy unifi compose.yml
+  template:
+    src: ./roles/containers/unifi_network_application/compose.yml
+    dest: "{{ docker_compose_directory }}/unifi/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Copy mongo db
+  template:
+    src: ./roles/containers/unifi_network_application/init-mongo.js
+    dest: "{{ docker_appdata_directory }}/unifi/init-mongo.js"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Docker-compose up unifi container
+  community.docker.docker_compose_v2:
+    project_src: "{{ docker_compose_directory }}/unifi/"
+    recreate: "always"

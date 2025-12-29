@@ -1,0 +1,29 @@
+- name: Verify that tandoor directories exists
+  file:
+    path: "{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    state: directory
+  loop:
+    - "{{ docker_compose_directory }}/tandoor"
+
+- name: Copy tandoor compose.yml
+  template:
+    src: ./roles/containers/tandoor/compose.yml
+    dest: "{{ docker_compose_directory }}/tandoor/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Copy tandoor compose.env
+  template:
+    src: ./roles/containers/tandoor/compose.env
+    dest: "{{ docker_compose_directory }}/tandoor/compose.env"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Docker-compose up tandoor container
+  community.docker.docker_compose_v2:
+    state: present
+    project_src: "{{ docker_compose_directory }}/tandoor"

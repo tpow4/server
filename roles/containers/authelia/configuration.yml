@@ -1,21 +1,14 @@
----
 server:
   host: 0.0.0.0
   port: 9091
 log:
-  level: debug
+  level: info
 theme: dark
 # This secret can also be set using the env variables AUTHELIA_JWT_SECRET_FILE
 jwt_secret: "{{ authelia_jwt_secret }}"
 default_redirection_url: "https://auth.{{ local_domain }}"
 totp:
   issuer: "{{ local_domain }}"
-
-# duo_api:
-#  hostname: api-123456789.example.com
-#  integration_key: ABCDEF
-#  # This secret can also be set using the env variables AUTHELIA_DUO_API_SECRET_KEY_FILE
-#  secret_key: 1234567890abcdefghifjkl
 
 authentication_backend:
   file:
@@ -32,7 +25,13 @@ access_control:
   rules:
     - domain: "pihole.{{ local_domain }}"
       policy: bypass
+    - domain: "prox.{{ local_domain }}"
+      policy: bypass
     - domain: "auth.{{ local_domain }}"
+      policy: bypass
+    - domain: "prometheus.{{ local_domain }}"
+      policy: one_factor
+    - domain: "grafana.{{ local_domain }}"
       policy: bypass
     - domain: "books.{{ local_domain }}"
       policy: one_factor
@@ -40,21 +39,29 @@ access_control:
       policy: one_factor
     - domain: "jellyfin.{{ local_domain }}"
       policy: bypass
-    - domain: "nextcloud.{{ local_domain }}"
-      policy: bypass
     - domain: "radarr.{{ local_domain }}"
       policy: bypass
     - domain: "sonarr.{{ local_domain }}"
       policy: bypass
     - domain: "paperless.{{ local_domain }}"
-      policy: one_factor
+      policy: bypass
     - domain: "qbit.{{ local_domain }}"
       policy: bypass
     - domain: "prowlarr.{{ local_domain }}"
       policy: bypass
     - domain: "sabnzbd.{{ local_domain }}"
       policy: bypass
-    - domain: "homeassistant.{{ local_domain }}"
+    - domain: "sonarqube.{{ local_domain }}"
+      policy: bypass
+    - domain: "navidrome.{{ local_domain }}"
+      policy: bypass
+    - domain: "immich.{{ local_domain }}"
+      policy: bypass
+    - domain: "unifi.{{ local_domain }}"
+      policy: bypass
+    - domain: "tandoor.{{ local_domain }}"
+      policy: bypass
+    - domain: "vikunja.{{ local_domain }}"
       policy: bypass
 
 session:
@@ -62,13 +69,7 @@ session:
   secret: "{{ authelia_session_secret }}"
   expiration: 3600  # 1 hour
   inactivity: 300  # 5 minutes
-  domain: "{{ local_domain }}" #Should match whatever your root protected domain is
-
-  # redis:
-  #   host: redis
-  #   port: 6379
-  #   # This secret can also be set using the env variables AUTHELIA_SESSION_REDIS_PASSWORD_FILE
-  #   # password: authelia
+  domain: "{{ local_domain }}" # Should match whatever your root protected domain is
 
 regulation:
   max_retries: 3

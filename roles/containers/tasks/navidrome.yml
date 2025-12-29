@@ -1,0 +1,20 @@
+- name: Verify that navidrome directory exists
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    state: directory
+  loop:
+    - "{{ docker_compose_directory }}/navidrome"
+
+- name: Copy navidrome compose.yml
+  template:
+    src: ./roles/containers/navidrome/compose.yml
+    dest: "{{ docker_compose_directory }}/navidrome/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Docker compose up navidrome container
+  community.docker.docker_compose_v2:
+    project_src: "{{ docker_compose_directory }}/navidrome/"

@@ -5,41 +5,43 @@ http:
         - "https"
       rule: "Host(`pihole.{{ local_domain }}`)"
       middlewares:
-        - authelia
         - redirectregex-pihole
-        - default-headers
         - addprefix-pihole
-        - https-redirectscheme
       tls: {}
       service: pihole
-    nextcloud:
-      rule: "Host(`nextcloud.{{ local_domain }}`)"
+    proxmox:
+      rule: "Host(`pve.{{ local_domain }}`)"
       entryPoints:
         - "https"
-      service: nextcloud
+      service: proxmox
       tls: {}
 
   services:
     pihole:
       loadBalancer:
         servers:
-          - url: "http://192.168.0.125:80"
-        passHostHeader: true
-    nextcloud:
+          - url: "http://{{ hostvars['rpi1'].ansible_host }}:80"
+    proxmox:
       loadBalancer:
         servers:
-          - url: "http://localhost:11000"
-    
+          - url: "http://10.0.0.5:8006"
+
   middlewares:
     authelia:
       forwardAuth:
         address: "http://authelia:9091/api/verify?rd=https://auth.{{ local_domain }}"
         trustForwardHeader: true
-        authResponseHeaders: 
-         - Remote-User
-         - Remote-Groups
-         - Remote-Name
-         - Remote-Email
+        authResponseHeaders:
+          - Remote-User
+          - Remote-Groups
+          - Remote-Name
+          - Remote-Email
+    default-allowlist:
+      ipAllowList:
+        sourceRange:
+          - "10.0.0.0/8"
+          - "192.168.0.0/16"
+          - "172.16.0.0/12"
     securityHeaders:
       headers:
         customResponseHeaders:
@@ -52,56 +54,20 @@ http:
         hostsProxyHeaders:
           - "X-Forwarded-Host"
         customRequestHeaders:
-          X-Forwarded-Proto: "https"          
+          X-Forwarded-Proto: "https"
         contentTypeNosniff: true
-        browserXssFilter: true
         forceSTSHeader: true
         stsIncludeSubdomains: true
         stsSeconds: 63072000
         stsPreload: true
+    unifiHeaders:
+      headers:
+        customRequestHeaders:
+          Authorization: "" # Removes
     addprefix-pihole:
       addPrefix:
         prefix: "/admin"
-    https-redirectscheme:
-      redirectScheme:
-        scheme: https
-        permanent: true
     redirectregex-pihole:
       redirectRegex:
         regex: /admin/$
         replacement: /
-    default-headers:
-      headers:
-        frameDeny: true
-        browserXssFilter: true
-        contentTypeNosniff: true
-        forceSTSHeader: true
-        stsIncludeSubdomains: true
-        stsPreload: true
-        stsSeconds: 15552000
-        customFrameOptionsValue: SAMEORIGIN
-        customRequestHeaders:
-          X-Forwarded-Proto: https
-    idrac:
-      headers:
-        frameDeny: true
-        browserXssFilter: true
-        forceSTSHeader: true
-        stsIncludeSubdomains: true
-        stsSeconds: 15552000
-        customFrameOptionsValue: SAMEORIGIN
-        customRequestHeaders:
-          X-Forwarded-Proto: https
-
-    default-whitelist:
-      ipWhiteList:
-        sourceRange:
-        - "10.0.0.0/8"
-        - "192.168.0.0/16"
-        - "172.16.0.0/12"
-
-    secured:
-      chain:
-        middlewares:
-        - default-whitelist
-        - default-headers

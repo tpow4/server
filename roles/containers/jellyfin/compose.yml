@@ -1,23 +1,33 @@
-version: '3.5'
-
 networks:
   proxy:
     external: true
 
 services:
   jellyfin:
-    image: jellyfin/jellyfin
+    image: jellyfin/jellyfin:10.11
     container_name: jellyfin
     networks:
       - proxy
     volumes:
       - "{{ docker_appdata_directory }}/jellyfin/config:/config"
       - "{{ docker_appdata_directory }}/jellyfin/cache:/cache"
-      - "{{ data_directory }}/media:/media"
+      - "media_volume:/media"
     restart: 'unless-stopped'
+    group_add:
+      - '993' # "render" host group id for hardware acceleration
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
     environment:
       - JELLYFIN_PublishedServerUrl=http://jellyfin.{{ local_domain }}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.{{ local_domain }}`)"
       - "traefik.http.routers.jellyfin.entrypoints=https"
+
+volumes:
+  media_volume:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr={{ hostvars['nas1'].ansible_host }},rw,nolock,soft,timeo=30,vers=4.0"
+      device: ":/mnt/truenas/nas/data/media"

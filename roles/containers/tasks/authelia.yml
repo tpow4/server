@@ -5,13 +5,13 @@
     group: "{{ username }}"
     state: directory
   loop:
-    - "{{ authelia_directory }}"
-    - "{{ authelia_directory }}/config"
+    - "{{ docker_compose_directory }}/authelia"
+    - "{{ docker_appdata_directory }}/authelia"
 
-- name: Copy authelia docker-compose.yml
+- name: Copy authelia compose.yml
   template:
     src: ./roles/containers/authelia/compose.yml
-    dest: "{{ authelia_directory }}/compose.yml"
+    dest: "{{ docker_compose_directory }}/authelia/compose.yml"
     owner: "{{ username }}"
     group: "{{ username }}"
     force: yes
@@ -19,7 +19,7 @@
 - name: Copy authelia configuration.yml
   template:
     src: ./roles/containers/authelia/configuration.yml
-    dest: "{{ authelia_directory }}/config/configuration.yml"
+    dest: "{{ docker_appdata_directory }}/authelia/configuration.yml"
     owner: "{{ username }}"
     group: "{{ username }}"
     force: yes
@@ -27,11 +27,11 @@
 - name: Copy authelia users_database.yml
   template:
     src: ./roles/containers/authelia/users_database.yml
-    dest: "{{ authelia_directory }}/config/users_database.yml"
+    dest: "{{ docker_appdata_directory }}/authelia/users_database.yml"
     owner: "{{ username }}"
     group: "{{ username }}"
     force: yes
 
 - name: Docker-compose up authelia container
-  community.docker.docker_compose:
-    project_src: "{{ authelia_directory }}"
+  community.docker.docker_compose_v2:
+    project_src: "{{ docker_compose_directory }}/authelia/"

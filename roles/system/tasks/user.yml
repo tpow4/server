@@ -2,7 +2,7 @@
   set_fact:
     sudo_group: sudo
 
-- name: Ensure the necessary groupsexists
+- name: Ensure the necessary groups exist
   group:
     name: "{{ item }}"
     state: present
@@ -47,10 +47,3 @@
     backup: yes
   notify:
     - Restart SSH
-
-- name: Copy the public SSH key 
-  authorized_key:
-    user: "{{ username }}"
-    state: present
-    key: "{{ ssh_public_key }}"
-    exclusive: yes #todo: check if this is needed
