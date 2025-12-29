@@ -11,7 +11,7 @@ volumes:
 
 services:
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.8.1
     container_name: prometheus
     restart: unless-stopped
     networks:
@@ -33,7 +33,7 @@ services:
       - "traefik.http.routers.prometheus.entrypoints=https"
 
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.10.2
     container_name: node-exporter
     restart: unless-stopped
     networks:
@@ -51,7 +51,7 @@ services:
       - "9100:9100"
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:12.3
     container_name: grafana
     restart: unless-stopped
     networks:
@@ -72,7 +72,7 @@ services:
       - "traefik.http.routers.grafana.entrypoints=https"
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: gcr.io/cadvisor/cadvisor:v0.55.1
     container_name: cadvisor
     restart: unless-stopped
     networks:
@@ -90,7 +90,7 @@ services:
     privileged: true
 
   blackbox-exporter:
-    image: prom/blackbox-exporter:latest
+    image: prom/blackbox-exporter:v0.28.0
     container_name: blackbox-exporter
     restart: unless-stopped
     networks:
@@ -103,7 +103,7 @@ services:
       - '--config.file=/config/blackbox.yml'
 
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:v3.6.3
     container_name: loki
     restart: unless-stopped
     networks:
@@ -127,3 +127,22 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command: -config.file=/etc/promtail/config.yml
+
+  alloy:
+    image: grafana/alloy:v1.7.1
+    container_name: alloy
+    restart: unless-stopped
+    networks:
+      - monitoring
+    volumes:
+      - ./alloy.river:/etc/alloy/config.alloy:ro
+      - /var/log:/var/log:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+    ports:
+      - "12345:12345"
