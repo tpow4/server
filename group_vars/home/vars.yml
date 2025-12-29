@@ -33,7 +33,7 @@ sonar_postgres_password: "{{ vault_sonar_postgres_password }}"
 # Immich settings
 immich_db_password: "{{ vault_immich_db_password }}"
 
-# Orbital Sync settings
+# Nebula Sync settings
 primary_pihole_admin_password: "{{ vault_primary_pihole_admin_password }}"
 secondary_pihole_admin_password: "{{ vault_secondary_pihole_admin_password }}"
 
