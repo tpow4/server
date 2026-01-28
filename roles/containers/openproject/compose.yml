@@ -1,0 +1,49 @@
+networks:
+  proxy:
+    external: true
+  internal:
+
+services:
+  openproject:
+    image: openproject/openproject:15-slim
+    container_name: openproject
+    environment:
+      OPENPROJECT_HOST__NAME: 'openproject.{{ local_domain }}'
+      OPENPROJECT_HTTPS: 'false'
+      OPENPROJECT_HSTS: 'false'
+      OPENPROJECT_RAILS__RELATIVE__URL__ROOT: ''
+      DATABASE_URL: 'postgres://openproject:{{ openproject_db_password }}@openproject-db/openproject?pool=20&encoding=unicode&reconnect=true'
+      OPENPROJECT_SECRET_KEY_BASE: '{{ openproject_secret_key }}'
+      RAILS_MIN_THREADS: '4'
+      RAILS_MAX_THREADS: '16'
+    volumes:
+      - '{{ docker_appdata_directory }}/openproject/assets:/var/openproject/assets'
+    networks:
+      - proxy
+      - internal
+    depends_on:
+      openproject-db:
+        condition: service_healthy
+    restart: unless-stopped
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.openproject.rule=Host(`openproject.{{ local_domain }}`)'
+      - 'traefik.http.routers.openproject.entrypoints=https'
+      - 'traefik.http.services.openproject.loadbalancer.server.port=8080'
+
+  openproject-db:
+    image: postgres:15
+    container_name: openproject-db
+    environment:
+      POSTGRES_PASSWORD: '{{ openproject_db_password }}'
+      POSTGRES_USER: openproject
+      POSTGRES_DB: openproject
+    volumes:
+      - '{{ docker_appdata_directory }}/openproject/db:/var/lib/postgresql/data'
+    restart: unless-stopped
+    networks:
+      - internal
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h localhost -U $$POSTGRES_USER']
+      interval: 2s
+      start_period: 30s
