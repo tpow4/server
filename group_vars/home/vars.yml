@@ -48,3 +48,7 @@ tandoor_db_password: "{{ vault_tandoor_db_password }}"
 # Vikunja settings
 vikunja_database_password: "{{ vault_vikunja_database_password }}"
 vikunja_jwt_secret: "{{ vault_vikunja_jwt_secret }}"
+
+# OpenProject settings
+openproject_db_password: "{{ vault_openproject_db_password }}"
+openproject_secret_key: "{{ vault_openproject_secret_key }}"
