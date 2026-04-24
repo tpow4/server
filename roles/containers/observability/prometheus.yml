@@ -22,7 +22,7 @@ scrape_configs:
   - job_name: 'blackbox-http'
     metrics_path: /probe
     params:
-      module: [http_2xx]
+      module: [http_2xx_or_403]
     static_configs:
       - targets:
         - "https://jellyfin.{{ local_domain }}"

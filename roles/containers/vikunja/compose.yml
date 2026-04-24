@@ -13,7 +13,7 @@ services:
       VIKUNJA_DATABASE_TYPE: postgres
       VIKUNJA_DATABASE_USER: vikunja
       VIKUNJA_DATABASE_DATABASE: vikunja
-      VIKUNJA_SERVICE_JWTSECRET: '{{ vikunja_jwt_secret }}'
+      VIKUNJA_SERVICE_SECRET: '{{ vikunja_jwt_secret }}'
     volumes:
       - "{{ docker_appdata_directory }}/vikunja/files:/app/vikunja/files"
     networks:

@@ -1,14 +1,14 @@
 server:
-  host: 0.0.0.0
-  port: 9091
+  address: 'tcp://0.0.0.0:9091/'
 log:
   level: info
 theme: dark
-# This secret can also be set using the env variables AUTHELIA_JWT_SECRET_FILE
-jwt_secret: "{{ authelia_jwt_secret }}"
-default_redirection_url: "https://auth.{{ local_domain }}"
 totp:
   issuer: "{{ local_domain }}"
+
+identity_validation:
+  reset_password:
+    jwt_secret: "{{ authelia_jwt_secret }}"
 
 authentication_backend:
   file:
@@ -26,6 +26,8 @@ access_control:
     - domain: "pihole.{{ local_domain }}"
       policy: bypass
     - domain: "prox.{{ local_domain }}"
+      policy: bypass
+    - domain: "ha.{{ local_domain }}"
       policy: bypass
     - domain: "auth.{{ local_domain }}"
       policy: bypass
@@ -69,7 +71,11 @@ session:
   secret: "{{ authelia_session_secret }}"
   expiration: 3600  # 1 hour
   inactivity: 300  # 5 minutes
-  domain: "{{ local_domain }}" # Should match whatever your root protected domain is
+  domain: "" # Should match whatever your root protected domain is
+  cookies:
+    - domain: "{{ local_domain }}"
+      authelia_url: 'https://auth.{{ local_domain }}'
+      default_redirection_url: "https://www.{{ local_domain }}"
 
 regulation:
   max_retries: 3
