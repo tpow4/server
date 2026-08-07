@@ -37,7 +37,7 @@ networks:
 
 services:
   broker:
-    image: docker.io/library/redis:7
+    image: docker.io/valkey/valkey:9-alpine
     restart: unless-stopped
     networks:
       - internal
@@ -45,7 +45,7 @@ services:
       - redisdata:/data
 
   paperless-db:
-    image: docker.io/library/mariadb:10
+    image: docker.io/library/mariadb:12
     restart: unless-stopped
     networks:
       - internal
@@ -59,7 +59,7 @@ services:
       MARIADB_ROOT_PASSWORD: "{{ paperless_db_root_password }}"
 
   webserver:
-    image: ghcr.io/paperless-ngx/paperless-ngx:2.20
+    image: ghcr.io/paperless-ngx/paperless-ngx:3.0
     restart: unless-stopped
     depends_on:
       - paperless-db
@@ -94,7 +94,7 @@ services:
       - "traefik.http.routers.paperless.rule=Host(`paperless.{{ local_domain }}`)"
 
   gotenberg:
-    image: docker.io/gotenberg/gotenberg:7.10
+    image: docker.io/gotenberg/gotenberg:8.34
     restart: unless-stopped
     networks:
       - internal
