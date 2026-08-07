@@ -8,6 +8,7 @@ volumes:
   prometheus_data:
   grafana_data:
   loki_data:
+  wud_store:
 
 services:
   prometheus:
@@ -127,3 +128,23 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command: -config.file=/etc/promtail/config.yml
+
+  wud:
+    image: getwud/wud
+    container_name: wud
+    restart: unless-stopped
+    networks:
+      - proxy
+      - monitoring
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - wud_store:/store
+    environment:
+      TZ: "{{ timezone }}"
+      WUD_WATCHER_LOCAL_CRON: "0 6 * * *"
+      WUD_WATCHER_LOCAL_WATCHBYDEFAULT: "true"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wud.rule=Host(`wud.{{ local_domain }}`)"
+      - "traefik.http.routers.wud.entrypoints=https"
+      - "traefik.http.services.wud.loadbalancer.server.port=3000"

@@ -65,6 +65,8 @@ access_control:
       policy: bypass
     - domain: "vikunja.{{ local_domain }}"
       policy: bypass
+    - domain: "wud.{{ local_domain }}"
+      policy: bypass
 
 session:
   name: authelia_session
