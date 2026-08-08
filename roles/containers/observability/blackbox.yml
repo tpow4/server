@@ -1,28 +1,45 @@
 modules:
+  # Named to match what prometheus.yml actually asks for. The previous config
+  # defined `http_2xx` while Prometheus requested `http_2xx_or_403`, so every
+  # probe came back HTTP 400 "Unknown module" and all 11 targets read up=0.
+  #
+  # follow_redirects is off on purpose. Authelia is an entryPoint middleware in
+  # traefik.yml, so a protected service answers 302 -> auth.{{ local_domain }}.
+  # With redirect-following on, blackbox chased that to the login page, got a
+  # 200, and reported the service healthy no matter what state it was in.
+  # 302/401 are therefore *expected* successes here: they prove DNS, TLS and
+  # Traefik routing work and that Authelia is enforcing.
+  http_2xx_or_403:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      method: GET
+      valid_status_codes: [200, 302, 401, 403]
+      follow_redirects: false
+      fail_if_not_ssl: true
+      preferred_ip_protocol: ip4
+      tls_config:
+        insecure_skip_verify: false  # set true to allow self-signed certificates
+
+  # For endpoints that should answer 200 without passing through Authelia.
   http_2xx:
     prober: http
     timeout: 5s
     http:
       valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
       method: GET
-      valid_status_codes: [200, 403]
+      valid_status_codes: [200]
+      follow_redirects: false
       fail_if_not_ssl: true
-      tls_config:
-        insecure_skip_verify: false  # set true to allow self-signed certificates
-
-  http_post_2xx:
-    prober: http
-    timeout: 5s
-    http:
-      method: POST
-      headers:
-        Content-Type: application/json
-      body: '{}'
+      preferred_ip_protocol: ip4
 
   tcp_connect:
     prober: tcp
     timeout: 5s
 
+  # Requires CAP_NET_RAW, which the blackbox-exporter container is not granted.
+  # Add `cap_add: [NET_RAW]` in compose.yml before pointing a job at this.
   ping:
     prober: icmp
     timeout: 5s

@@ -1,6 +1,16 @@
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
+  external_labels:
+    host: "{{ inventory_hostname }}"
+
+rule_files:
+  - /etc/prometheus/alerts.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
 
 scrape_configs:
   # Prometheus monitoring of itself
@@ -8,19 +18,45 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
 
-  # System metrics from the homelab server
-  - job_name: 'node-exporter'
+  # Alloy's own health. Host and container metrics arrive by remote_write, so
+  # this pull-based scrape is what makes a dead Alloy visible - if Alloy stops,
+  # remote_write simply goes quiet, which on its own looks like silence.
+  - job_name: 'alloy'
     static_configs:
-      - targets: ['node-exporter:9100']
+      - targets: ['alloy:12345']
 
-  # Docker container metrics
-  - job_name: 'cadvisor'
+  # The observability stack watching itself
+  - job_name: 'loki'
     static_configs:
-      - targets: ['cadvisor:8080']
-  
-  # HTTP health checks for your services
+      - targets: ['loki:3100']
+
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']
+
+  - job_name: 'blackbox-exporter'
+    static_configs:
+      - targets: ['blackbox-exporter:9115']
+
+  # Pending image updates, so "you are 4 versions behind on Loki" is graphable
+  - job_name: 'wud'
+    static_configs:
+      - targets: ['wud:3000']
+
+  # Requires the metrics entryPoint added to traefik/traefik.yml
+  - job_name: 'traefik'
+    static_configs:
+      - targets: ['traefik:8082']
+
+  # Edge health checks: DNS + TLS + Traefik routing + Authelia enforcing.
+  # See blackbox.yml for why 302/401 count as success here.
   - job_name: 'blackbox-http'
     metrics_path: /probe
+    scrape_interval: 30s
     params:
       module: [http_2xx_or_403]
     static_configs:
@@ -36,6 +72,10 @@ scrape_configs:
         - "https://books.{{ local_domain }}"
         - "https://auth.{{ local_domain }}"
         - "https://traefik.{{ local_domain }}"
+        - "https://immich.{{ local_domain }}"
+        - "https://tandoor.{{ local_domain }}"
+        - "https://vikunja.{{ local_domain }}"
+        - "https://navidrome.{{ local_domain }}"
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target

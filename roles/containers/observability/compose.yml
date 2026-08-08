@@ -8,24 +8,32 @@ volumes:
   prometheus_data:
   grafana_data:
   loki_data:
+  alertmanager_data:
+  alloy_data:
   wud_store:
 
 services:
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.13.2
     container_name: prometheus
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     networks:
       - proxy
       - monitoring
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./alerts.yml:/etc/prometheus/alerts.yml:ro
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=15d'
+      - '--storage.tsdb.retention.time=30d'
       - '--web.enable-lifecycle'
+      # Alloy pushes host and container metrics rather than being scraped
+      - '--web.enable-remote-write-receiver'
+      - '--web.external-url=https://prometheus.{{ local_domain }}'
     ports:
       - "9090:9090"
     labels:
@@ -33,33 +41,68 @@ services:
       - "traefik.http.routers.prometheus.rule=Host(`prometheus.{{ local_domain }}`)"
       - "traefik.http.routers.prometheus.entrypoints=https"
 
-  node-exporter:
-    image: prom/node-exporter:latest
-    container_name: node-exporter
+  alertmanager:
+    image: prom/alertmanager:v0.33.1
+    container_name: alertmanager
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy
+      - monitoring
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--web.external-url=https://alertmanager.{{ local_domain }}'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.alertmanager.rule=Host(`alertmanager.{{ local_domain }}`)"
+      - "traefik.http.routers.alertmanager.entrypoints=https"
+      - "traefik.http.services.alertmanager.loadbalancer.server.port=9093"
+
+  # Replaces promtail (EOL 2026-03-02), node-exporter and cadvisor.
+  alloy:
+    image: grafana/alloy:v1.18.1
+    container_name: alloy
+    restart: unless-stopped
+    user: root
     networks:
       - monitoring
     volumes:
+      - ./config.alloy:/etc/alloy/config.alloy:ro
+      - alloy_data:/var/lib/alloy/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/log:/var/log:ro
+      - /:/host/root:ro,rslave
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
-      - /:/rootfs:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    devices:
+      - /dev/kmsg:/dev/kmsg
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-    ports:
-      - "9100:9100"
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:13.1.3
     container_name: grafana
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     networks:
       - proxy
       - monitoring
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ./grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     environment:
       - "GF_SECURITY_ADMIN_USER={{ grafana_admin_user }}"
       - "GF_SECURITY_ADMIN_PASSWORD={{ grafana_admin_password }}"
@@ -72,65 +115,34 @@ services:
       - "traefik.http.routers.grafana.rule=Host(`grafana.{{ local_domain }}`)"
       - "traefik.http.routers.grafana.entrypoints=https"
 
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
-    container_name: cadvisor
-    restart: unless-stopped
-    networks:
-      - monitoring
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
-    ports:
-      - "8085:8080"
-    devices:
-      - /dev/kmsg:/dev/kmsg
-    privileged: true
-
   blackbox-exporter:
-    image: prom/blackbox-exporter:latest
+    image: prom/blackbox-exporter:v0.28.0
     container_name: blackbox-exporter
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     networks:
       - monitoring
     volumes:
       - ./blackbox.yml:/config/blackbox.yml:ro
-    ports:
-      - "9115:9115"
     command:
       - '--config.file=/config/blackbox.yml'
 
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:3.7.6
     container_name: loki
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     networks:
       - monitoring
     volumes:
       - ./loki.yml:/etc/loki/local-config.yaml:ro
       - loki_data:/loki
-    ports:
-      - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
 
-  promtail:
-    image: grafana/promtail:latest
-    container_name: promtail
-    restart: unless-stopped
-    networks:
-      - monitoring
-    volumes:
-      - ./promtail.yml:/etc/promtail/config.yml:ro
-      - /var/log:/var/log:ro
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    command: -config.file=/etc/promtail/config.yml
-
   wud:
-    image: getwud/wud
+    image: getwud/wud:8.3.1
     container_name: wud
     restart: unless-stopped
     networks:

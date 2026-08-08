@@ -18,7 +18,7 @@ common:
 
 schema_config:
   configs:
-    - from: 2024-01-01
+    - from: 2026-08-07
       store: tsdb
       object_store: filesystem
       schema: v13
@@ -28,7 +28,7 @@ schema_config:
 
 limits_config:
   split_queries_by_interval: 15m
-  retention_period: 168h
+  retention_period: 720h  # 30d, matched to Prometheus --storage.tsdb.retention.time
   ingestion_rate_mb: 32
   ingestion_burst_size_mb: 64
   max_query_parallelism: 32
@@ -36,24 +36,20 @@ limits_config:
   max_structured_metadata_size: 64kb
   max_structured_metadata_entries_count: 128
 
-table_manager:
-  retention_deletes_enabled: true
-  retention_period: 168h
-
+# Retention is enforced here and only here. The old config also carried a
+# `table_manager` block with a second, conflicting retention_period; table_manager
+# was removed in Loki 3.x and had been silently ignored for some time.
 compactor:
   working_directory: /loki/compactor
   compaction_interval: 5m
   retention_enabled: true
+  retention_delete_delay: 2h
   delete_request_store: filesystem
   delete_request_store_key_prefix: index/
 
-analytics:
-  reporting_enabled: false
-
+# Only the tsdb_shipper paths are set here. The previous `filesystem.directory`
+# entry restated what common.path_prefix already derives.
 storage_config:
-  filesystem:
-    directory: /loki/chunks
-  
   tsdb_shipper:
     active_index_directory: /loki/tsdb-index
     cache_location: /loki/tsdb-cache
@@ -61,3 +57,6 @@ storage_config:
 query_range:
   align_queries_with_step: true
   max_retries: 5
+
+analytics:
+  reporting_enabled: false

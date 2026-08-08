@@ -1,0 +1,55 @@
+# Managed by Ansible - roles/containers/observability/alertmanager.yml
+#
+# Receivers are opt-in so the playbook never breaks on an undefined variable.
+# A receiver with no configs is valid in Alertmanager (it is a null sink), so
+# this deploys cleanly today and starts notifying the moment you add either
+# `alertmanager_webhook_url` or the SMTP vars to group_vars/home/vault.yml.
+
+global:
+  resolve_timeout: 5m
+{% if alertmanager_smtp_host is defined %}
+  smtp_smarthost: "{{ alertmanager_smtp_host }}"
+  smtp_from: "{{ alertmanager_smtp_from | default(email) }}"
+  smtp_auth_username: "{{ alertmanager_smtp_username }}"
+  smtp_auth_password: "{{ alertmanager_smtp_password }}"
+{% endif %}
+
+route:
+  group_by: ['alertname', 'job']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 12h
+  receiver: default
+  routes:
+    - matchers:
+        - severity = "critical"
+      receiver: default
+      group_wait: 10s
+      repeat_interval: 4h
+
+inhibit_rules:
+  # A host that is down will trip every probe pointed at it; only page once.
+  - source_matchers:
+      - severity = "critical"
+    target_matchers:
+      - severity = "warning"
+    equal: ['alertname', 'instance']
+
+  # If the whole box is unreachable, suppress the per-service probe noise.
+  - source_matchers:
+      - alertname = "AlloyNotReporting"
+    target_matchers:
+      - alertname = "ServiceProbeFailed"
+
+receivers:
+  - name: default
+{% if alertmanager_webhook_url is defined %}
+    webhook_configs:
+      - url: "{{ alertmanager_webhook_url }}"
+        send_resolved: true
+{% endif %}
+{% if alertmanager_smtp_host is defined %}
+    email_configs:
+      - to: "{{ alertmanager_email_to | default(email) }}"
+        send_resolved: true
+{% endif %}

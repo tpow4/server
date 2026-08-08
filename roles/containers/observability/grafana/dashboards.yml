@@ -1,0 +1,19 @@
+# Managed by Ansible - roles/containers/observability/grafana/dashboards.yml
+#
+# Dashboard JSON is fetched into {{ docker_compose_directory }}/observability/
+# grafana/dashboards by the Ansible role (see tasks/observability.yml), so the
+# grafana_data volume stays disposable.
+
+apiVersion: 1
+
+providers:
+  - name: 'default'
+    orgId: 1
+    folder: 'Homelab'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: false
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

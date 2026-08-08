@@ -28,7 +28,18 @@ api:
   insecure: true #TODO: CHANGE FOR PRODUCTION
   debug: true
 
+# Scraped by Prometheus over the proxy network as traefik:8082. Exposed on its
+# own entryPoint so it does not inherit the authelia middleware below.
+metrics:
+  prometheus:
+    entryPoint: metrics
+    addEntryPointsLabels: true
+    addRoutersLabels: true
+    addServicesLabels: true
+
 entryPoints:
+  metrics:
+    address: ":8082"
   http:
     address: ":80"
     http:

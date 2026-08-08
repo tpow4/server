@@ -1,52 +1,103 @@
+- name: Set observability paths
+  ansible.builtin.set_fact:
+    observability_dir: "{{ docker_compose_directory }}/observability"
+
 - name: Create observability directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ username }}"
     group: "{{ username }}"
+    mode: "0755"
   loop:
-    - "{{ docker_compose_directory }}/observability/"
+    - "{{ observability_dir }}"
+    - "{{ observability_dir }}/grafana"
+    - "{{ observability_dir }}/grafana/dashboards"
 
-- name: Copy observability docker-compose.yml
-  template:
-    src: ./roles/containers/observability/compose.yml
-    dest: "{{ docker_compose_directory }}/observability/compose.yml"
+# Each config notifies the narrowest handler that picks it up. Previously these
+# were five copy-pasted template blocks with no notify at all, so a changed
+# config was written to disk and then ignored - docker_compose_v2 sees no drift
+# when only a bind-mounted file changed, and nothing restarted.
+- name: Template compose file
+  ansible.builtin.template: &observability_template
+    src: "./roles/containers/observability/{{ item }}"
+    dest: "{{ observability_dir }}/{{ item }}"
     owner: "{{ username }}"
     group: "{{ username }}"
-    force: yes
+    mode: "0644"
+    force: true
+  loop:
+    - compose.yml
+  notify: Recreate observability stack
 
-- name: Copy prometheus configuration
-  template:
-    src: ./roles/containers/observability/prometheus.yml
-    dest: "{{ docker_compose_directory }}/observability/prometheus.yml"
+- name: Template prometheus configuration
+  ansible.builtin.template: *observability_template
+  loop:
+    - prometheus.yml
+    - alerts.yml
+  notify: Reload prometheus
+
+- name: Template alertmanager configuration
+  ansible.builtin.template: *observability_template
+  loop:
+    - alertmanager.yml
+  notify: Restart alertmanager
+
+- name: Template blackbox configuration
+  ansible.builtin.template: *observability_template
+  loop:
+    - blackbox.yml
+  notify: Restart blackbox-exporter
+
+- name: Template loki configuration
+  ansible.builtin.template: *observability_template
+  loop:
+    - loki.yml
+  notify: Restart loki
+
+- name: Template alloy configuration
+  ansible.builtin.template: *observability_template
+  loop:
+    - config.alloy
+  notify: Restart alloy
+
+- name: Template grafana provisioning
+  ansible.builtin.template: *observability_template
+  loop:
+    - grafana/datasources.yml
+    - grafana/dashboards.yml
+  notify: Restart grafana
+
+# Dashboards are fetched rather than committed, which keeps ~500KB of generated
+# JSON out of the repo. The provider polls every 30s, so no grafana restart.
+- name: Download provisioned Grafana dashboards
+  ansible.builtin.get_url:
+    url: "https://grafana.com/api/dashboards/{{ item.id }}/revisions/latest/download"
+    dest: "{{ observability_dir }}/grafana/dashboards/{{ item.name }}.json"
     owner: "{{ username }}"
     group: "{{ username }}"
-    force: yes
+    mode: "0644"
+  loop: &observability_dashboards
+    - { id: 1860, name: node-exporter-full, datasource: prometheus }
+    - { id: 14282, name: cadvisor, datasource: prometheus }
+    - { id: 13639, name: loki-logs, datasource: loki }
+    - { id: 3662, name: prometheus-overview, datasource: prometheus }
+  loop_control:
+    label: "{{ item.name }}"
 
-- name: Copy blackbox configuration
-  template:
-    src: ./roles/containers/observability/blackbox.yml
-    dest: "{{ docker_compose_directory }}/observability/blackbox.yml"
-    owner: "{{ username }}"
-    group: "{{ username }}"
-    force: yes
-
-- name: Copy loki configuration
-  template:
-    src: ./roles/containers/observability/loki.yml
-    dest: "{{ docker_compose_directory }}/observability/loki.yml"
-    owner: "{{ username }}"
-    group: "{{ username }}"
-    force: yes
-
-- name: Copy promtail configuration
-  template:
-    src: ./roles/containers/observability/promtail.yml
-    dest: "{{ docker_compose_directory }}/observability/promtail.yml"
-    owner: "{{ username }}"
-    group: "{{ username }}"
-    force: yes
+# Community dashboards ship with ${DS_PROMETHEUS} / ${DS_LOKI} import
+# placeholders. Rewrite them to the UIDs pinned in grafana/datasources.yml so
+# the panels resolve without anyone clicking through an import wizard.
+- name: Point dashboards at the provisioned datasources
+  ansible.builtin.replace:
+    path: "{{ observability_dir }}/grafana/dashboards/{{ item.name }}.json"
+    regexp: '\$\{DS_[A-Z0-9_]+\}'
+    replace: "{{ item.datasource }}"
+  loop: *observability_dashboards
+  loop_control:
+    label: "{{ item.name }}"
 
 - name: Docker-compose up observability stack
   community.docker.docker_compose_v2:
-    project_src: "{{ docker_compose_directory }}/observability/"
+    project_src: "{{ observability_dir }}"
+    remove_orphans: true

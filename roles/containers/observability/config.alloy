@@ -1,0 +1,186 @@
+// Managed by Ansible - roles/containers/observability/config.alloy
+//
+// Replaces three containers that used to run separately:
+//   - promtail      (EOL 2026-03-02, no longer receiving security fixes)
+//   - node-exporter (now prometheus.exporter.unix)
+//   - cadvisor      (now prometheus.exporter.cadvisor, no privileged container)
+//
+// Metrics are pushed to Prometheus via remote_write, so Prometheus runs with
+// --web.enable-remote-write-receiver. Alloy's own /metrics is still scraped by
+// Prometheus over :12345, which is what makes "Alloy is dead" detectable.
+
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+// ---------------------------------------------------------------- destinations
+
+prometheus.remote_write "default" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+
+  external_labels = {
+    host = "{{ inventory_hostname }}",
+  }
+}
+
+// ---------------------------------------------------------------- host metrics
+
+prometheus.exporter.unix "node" {
+  rootfs_path = "/host/root"
+  procfs_path = "/host/proc"
+  sysfs_path  = "/host/sys"
+
+  filesystem {
+    fs_types_exclude     = "^(autofs|binfmt_misc|cgroup.*|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$"
+    mount_points_exclude = "^/(dev|proc|sys|run|var/lib/docker/.+|host/root/(dev|proc|sys|run))($|/)"
+    mount_timeout        = "5s"
+  }
+}
+
+discovery.relabel "node" {
+  targets = prometheus.exporter.unix.node.targets
+
+  rule {
+    target_label = "instance"
+    replacement  = "{{ inventory_hostname }}"
+  }
+}
+
+prometheus.scrape "node" {
+  targets         = discovery.relabel.node.output
+  forward_to      = [prometheus.remote_write.default.receiver]
+  job_name        = "node-exporter"
+  scrape_interval = "15s"
+}
+
+// ----------------------------------------------------------- container metrics
+
+prometheus.exporter.cadvisor "containers" {
+  docker_host      = "unix:///var/run/docker.sock"
+  storage_duration = "5m"
+  docker_only      = true
+}
+
+discovery.relabel "cadvisor" {
+  targets = prometheus.exporter.cadvisor.containers.targets
+
+  rule {
+    target_label = "instance"
+    replacement  = "{{ inventory_hostname }}"
+  }
+}
+
+prometheus.scrape "cadvisor" {
+  targets         = discovery.relabel.cadvisor.output
+  forward_to      = [prometheus.remote_write.default.receiver]
+  job_name        = "cadvisor"
+  scrape_interval = "30s"
+}
+
+// -------------------------------------------------------------- container logs
+//
+// Reads via the Docker API rather than tailing /var/lib/docker/containers/*/*log.
+// That removes the whole json -> attrs -> regex-the-tag dance the old promtail
+// config needed just to recover a container name.
+
+discovery.docker "containers" {
+  host             = "unix:///var/run/docker.sock"
+  refresh_interval = "30s"
+}
+
+discovery.relabel "container_logs" {
+  targets = discovery.docker.containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_log_stream"]
+    target_label  = "stream"
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "containerlogs"
+  }
+}
+
+loki.source.docker "containers" {
+  host             = "unix:///var/run/docker.sock"
+  targets          = discovery.relabel.container_logs.output
+  forward_to       = [loki.process.containers.receiver]
+  refresh_interval = "30s"
+}
+
+loki.process "containers" {
+  forward_to = [loki.write.default.receiver]
+
+  // Matches level=info, lvl=warn, "severity":"error" and friends. Anchored to a
+  // known key and a closed set of level words, so it cannot latch onto arbitrary
+  // text the way the old (?i)level=(?P<level>\w+)|(ERROR|WARN|...) alternation did.
+  stage.regex {
+    expression = "(?i)(?:level|lvl|severity)[\"']?\\s*[=:]\\s*[\"']?(?P<level>trace|debug|info|warn|warning|error|fatal|panic)"
+  }
+
+  stage.structured_metadata {
+    values = {
+      level = "",
+    }
+  }
+}
+
+// ------------------------------------------------------------------- host logs
+//
+// /var/log/daemon.log is intentionally gone: that path is a Debian-ism and never
+// existed on this Ubuntu host, so the old promtail job tailed nothing.
+
+local.file_match "system" {
+  path_targets = [
+    {"__path__" = "/var/log/syslog", "job" = "syslog"},
+    {"__path__" = "/var/log/auth.log", "job" = "auth"},
+  ]
+}
+
+loki.source.file "system" {
+  targets    = local.file_match.system.targets
+  forward_to = [loki.process.system.receiver]
+}
+
+loki.process "system" {
+  forward_to = [loki.write.default.receiver]
+
+  stage.regex {
+    expression = "^(?P<timestamp>\\w{3}\\s+\\d{1,2}\\s+\\d{2}:\\d{2}:\\d{2})\\s+(?P<hostname>\\S+)\\s+(?P<service>[^\\[:]+)(?:\\[(?P<pid>\\d+)\\])?:\\s*(?P<message>.*)$"
+  }
+
+  // service is a label (bounded, useful for filtering); pid is structured
+  // metadata (unbounded, would blow up stream cardinality as a label).
+  stage.labels {
+    values = {
+      service = "",
+    }
+  }
+
+  stage.structured_metadata {
+    values = {
+      pid = "",
+    }
+  }
+
+  stage.timestamp {
+    source = "timestamp"
+    format = "Jan 2 15:04:05"
+  }
+}

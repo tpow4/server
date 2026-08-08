@@ -1,0 +1,49 @@
+# Handlers for the containers role. Ansible loads roles/<role>/handlers/main.yml
+# automatically, so these are available to every task file under tasks/.
+
+- name: Recreate observability stack
+  community.docker.docker_compose_v2:
+    project_src: "{{ docker_compose_directory }}/observability"
+    state: present
+    remove_orphans: true
+
+# Prometheus supports a hot config reload, which is what --web.enable-lifecycle
+# was already switched on for. Retried because on a first run this fires moments
+# after the container comes up.
+- name: Reload prometheus
+  ansible.builtin.uri:
+    url: http://localhost:9090/-/reload
+    method: POST
+    status_code: [200, 204]
+  register: prometheus_reload
+  until: prometheus_reload is succeeded
+  retries: 5
+  delay: 3
+
+- name: Restart alertmanager
+  community.docker.docker_container: &observability_restart
+    name: "{{ item }}"
+    state: started
+    restart: true
+  loop:
+    - alertmanager
+
+- name: Restart blackbox-exporter
+  community.docker.docker_container: *observability_restart
+  loop:
+    - blackbox-exporter
+
+- name: Restart loki
+  community.docker.docker_container: *observability_restart
+  loop:
+    - loki
+
+- name: Restart alloy
+  community.docker.docker_container: *observability_restart
+  loop:
+    - alloy
+
+- name: Restart grafana
+  community.docker.docker_container: *observability_restart
+  loop:
+    - grafana
