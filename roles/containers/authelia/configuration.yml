@@ -67,6 +67,10 @@ access_control:
       policy: bypass
     - domain: "wud.{{ local_domain }}"
       policy: bypass
+    - domain: "kaneo.{{ local_domain }}"
+      policy: bypass
+    - domain: "minio.{{ local_domain }}"
+      policy: bypass
 
 session:
   name: authelia_session

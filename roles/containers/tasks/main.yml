@@ -10,6 +10,7 @@
 - include_tasks: downloads.yml
 - include_tasks: jellyfin.yml
 - include_tasks: immich.yml
+- include_tasks: kaneo.yml
 - include_tasks: navidrome.yml
 - include_tasks: paperless.yml
 - include_tasks: sonarqube.yml

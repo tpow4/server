@@ -48,3 +48,8 @@ tandoor_db_password: "{{ vault_tandoor_db_password }}"
 # Vikunja settings
 vikunja_database_password: "{{ vault_vikunja_database_password }}"
 vikunja_jwt_secret: "{{ vault_vikunja_jwt_secret }}"
+
+# Kaneo settings
+kaneo_db_password: "{{ vault_kaneo_db_password }}"
+kaneo_auth_secret: "{{ vault_kaneo_auth_secret }}"
+kaneo_minio_root_password: "{{ vault_kaneo_minio_root_password }}"

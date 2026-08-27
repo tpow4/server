@@ -1,0 +1,29 @@
+- name: Verify that kaneo directories exists
+  file:
+    path: "{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    state: directory
+  loop:
+    - "{{ docker_compose_directory }}/kaneo"
+
+- name: Copy kaneo compose.yml
+  template:
+    src: ./roles/containers/kaneo/compose.yml
+    dest: "{{ docker_compose_directory }}/kaneo/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Copy kaneo compose.env
+  template:
+    src: ./roles/containers/kaneo/compose.env
+    dest: "{{ docker_compose_directory }}/kaneo/compose.env"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Docker-compose up kaneo container
+  community.docker.docker_compose_v2:
+    state: present
+    project_src: "{{ docker_compose_directory }}/kaneo"

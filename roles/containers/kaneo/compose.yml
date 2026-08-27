@@ -1,0 +1,71 @@
+networks:
+  proxy:
+    external: true
+  internal:
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    env_file:
+      - compose.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kaneo -d kaneo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    env_file:
+      - compose.env
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+    networks:
+      - proxy
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.minio.rule=Host(`minio.{{ local_domain }}`)"
+      - "traefik.http.routers.minio.entrypoints=https"
+      - "traefik.http.services.minio.loadbalancer.server.port=9000"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kaneo:
+    image: ghcr.io/usekaneo/kaneo:latest
+    env_file:
+      - compose.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - proxy
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kaneo.rule=Host(`kaneo.{{ local_domain }}`)"
+      - "traefik.http.routers.kaneo.entrypoints=https"
+      - "traefik.http.services.kaneo.loadbalancer.server.port=5173"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:5173/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  postgres_data:
+  minio_data:
