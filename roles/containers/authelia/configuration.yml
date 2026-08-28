@@ -71,6 +71,8 @@ access_control:
       policy: bypass
     - domain: "minio.{{ local_domain }}"
       policy: bypass
+    - domain: "trek.{{ local_domain }}"
+      policy: bypass
 
 session:
   name: authelia_session

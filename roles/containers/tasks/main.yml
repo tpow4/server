@@ -15,4 +15,5 @@
 - include_tasks: paperless.yml
 - include_tasks: sonarqube.yml
 - include_tasks: tandoor.yml
+- include_tasks: trek.yml
 - include_tasks: vikunja.yml

@@ -1,0 +1,29 @@
+- name: Verify that trek directories exists
+  file:
+    path: "{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    state: directory
+  loop:
+    - "{{ docker_compose_directory }}/trek"
+
+- name: Copy trek compose.yml
+  template:
+    src: ./roles/containers/trek/compose.yml
+    dest: "{{ docker_compose_directory }}/trek/compose.yml"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Copy trek compose.env
+  template:
+    src: ./roles/containers/trek/compose.env
+    dest: "{{ docker_compose_directory }}/trek/compose.env"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    force: yes
+
+- name: Docker-compose up trek container
+  community.docker.docker_compose_v2:
+    state: present
+    project_src: "{{ docker_compose_directory }}/trek"

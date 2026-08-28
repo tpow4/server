@@ -53,3 +53,7 @@ vikunja_jwt_secret: "{{ vault_vikunja_jwt_secret }}"
 kaneo_db_password: "{{ vault_kaneo_db_password }}"
 kaneo_auth_secret: "{{ vault_kaneo_auth_secret }}"
 kaneo_minio_root_password: "{{ vault_kaneo_minio_root_password }}"
+
+# Trek settings
+trek_admin_password: "{{ vault_trek_admin_password }}"
+trek_encryption_key: "{{ vault_trek_encryption_key }}"
